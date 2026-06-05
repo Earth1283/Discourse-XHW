@@ -41,6 +41,16 @@ export const locales = {
     "catalog.loading": "loading…",
     "catalog.load_more": "load more",
     "card.no_text": "(no text)",
+    "board.gen.name": "General",
+    "board.gen.description": "Anything goes (mostly).",
+    "board.rant.name": "Rants",
+    "board.rant.description": "Get it off your chest.",
+    "board.hw.name": "Homework",
+    "board.hw.description": "Classes, assignments, suffering.",
+    "board.ann.name": "Announcements",
+    "board.ann.description": "Official posts only.",
+    "board.random.name": "Random",
+    "board.random.description": "Chaos.",
     
     // Composer (Thread / Reply)
     "composer.new_thread": "+ New thread",
@@ -129,6 +139,16 @@ export const locales = {
     "catalog.loading": "加载中…",
     "catalog.load_more": "加载更多",
     "card.no_text": "(无内容)",
+    "board.gen.name": "综合版",
+    "board.gen.description": "海纳百川，无所不谈（大多）。",
+    "board.rant.name": "宣泄板",
+    "board.rant.description": "一吐为快，宣泄心声。",
+    "board.hw.name": "学业板",
+    "board.hw.description": "功功课学业，探讨切磋，以及受难。",
+    "board.ann.name": "公告板",
+    "board.ann.description": "仅限官方发帖。",
+    "board.random.name": "混沌板",
+    "board.random.description": "无序与混沌之地。",
     
     // Composer (Thread / Reply)
     "composer.new_thread": "+ 新帖",
@@ -217,6 +237,16 @@ export const locales = {
     "catalog.loading": "候之…",
     "catalog.load_more": "更展余卷",
     "card.no_text": "(无文墨)",
+    "board.gen.name": "综合",
+    "board.gen.description": "诸子百家，无所不言（大体）。",
+    "board.rant.name": "宣泄",
+    "board.rant.description": "一吐块垒，宣泄胸臆。",
+    "board.hw.name": "课业",
+    "board.hw.description": "庠序学业，探讨切磋，以及磨砺。",
+    "board.ann.name": "布告",
+    "board.ann.description": "唯布公文。",
+    "board.random.name": "混沌",
+    "board.random.description": "无序与混沌之地。",
     
     // Composer (Thread / Reply)
     "composer.new_thread": "+ 启新议",
@@ -282,5 +312,16 @@ export function translate(locale: Locale, key: keyof typeof locales.en, variable
     });
   }
   return text;
+}
+
+export function translateBoard(
+  locale: Locale,
+  boardId: string,
+  field: "name" | "description",
+  fallback: string
+): string {
+  const key = `board.${boardId}.${field}`;
+  const dict = locales[locale] || locales.en;
+  return (dict as any)[key] || (locales.en as any)[key] || fallback;
 }
 

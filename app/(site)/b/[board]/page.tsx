@@ -7,6 +7,7 @@ import { CatalogLoadMore } from "@/components/board/CatalogLoadMore";
 import { ThreadComposer } from "@/components/thread/ThreadComposer";
 import { getSession } from "@/lib/auth/session";
 import { getServerTranslations } from "@/lib/i18n/server";
+import { translateBoard } from "@/lib/i18n/locales";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,7 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
   const cards = listThreadCards(board, 0);
   const session = await getSession();
   const canPost = !brd.adminOnlyPost || session?.role === "admin";
-  const { t } = await getServerTranslations();
+  const { locale, t } = await getServerTranslations();
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -30,9 +31,9 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
           <span className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 font-mono text-sm text-[var(--color-accent)]">
             /{brd.id}/
           </span>
-          <span className="text-lg font-medium">{brd.name}</span>
+          <span className="text-lg font-medium">{translateBoard(locale, brd.id, "name", brd.name)}</span>
         </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">{brd.description}</p>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">{translateBoard(locale, brd.id, "description", brd.description)}</p>
       </div>
 
       {canPost ? (

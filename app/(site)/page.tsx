@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Lock } from "lucide-react";
 import { listBoards } from "@/lib/db/services/boards";
 import { getServerTranslations } from "@/lib/i18n/server";
+import { translateBoard } from "@/lib/i18n/locales";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const boards = listBoards();
-  const { t } = await getServerTranslations();
+  const { locale, t } = await getServerTranslations();
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
@@ -29,10 +30,10 @@ export default async function Home() {
               <span className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 font-mono text-xs text-[var(--color-accent)]">
                 /{b.id}/
               </span>
-              <span className="font-medium">{b.name}</span>
+              <span className="font-medium">{translateBoard(locale, b.id, "name", b.name)}</span>
               {b.adminOnlyPost && <Lock size={12} className="text-[var(--color-muted)]" />}
             </div>
-            <p className="mt-2 text-sm text-[var(--color-muted)]">{b.description}</p>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">{translateBoard(locale, b.id, "description", b.description)}</p>
             <p className="mt-3 font-mono text-xs text-[var(--color-muted)]">
               {t("board.threads_count", { count: b.liveThreads })}
             </p>
