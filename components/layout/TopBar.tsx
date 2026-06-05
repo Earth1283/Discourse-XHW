@@ -70,7 +70,7 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
           className="flex items-center gap-1 rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         >
           <Languages size={16} />
-          <span className="font-mono text-[10px] font-bold uppercase">{cycleLocale[locale]}</span>
+          <span className="font-mono text-[10px] font-bold uppercase">{locale}</span>
         </button>
 
         <button
