@@ -5,7 +5,7 @@ export async function getServerLocale(): Promise<Locale> {
   try {
     const jar = await cookies();
     const cookieLocale = jar.get("xhw_locale")?.value;
-    if (cookieLocale === "en" || cookieLocale === "zh") {
+    if (cookieLocale === "en" || cookieLocale === "zh" || cookieLocale === "lzh") {
       return cookieLocale as Locale;
     }
   } catch (e) {

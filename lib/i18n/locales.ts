@@ -174,10 +174,98 @@ export const locales = {
     "admin.login.placeholder.password": "密码",
     "admin.login.button": "登录",
     "admin.login.failed": "登录失败。",
+  },
+  lzh: {
+    // Top bar and general layout
+    "logo.life": "生息",
+    "nav.boards": "← 诸版",
+    "nav.home": "← 归闾",
+    "home.boards": "// 诸版",
+    "theme.toggle": "易调阴阳",
+    "search.placeholder": "寻觅文墨…",
+    "search.no_results": "查无此文。",
+    "search.aria": "搜寻",
+    
+    // AuthMenu
+    "auth.handle": "名讳",
+    "auth.password": "暗言",
+    "auth.claim_or_login": "认领名讳或登阁",
+    "auth.new_handle_tip": "新名讳乎？初次认领即成书契。",
+    "auth.cancel": "作罢",
+    "auth.go": "行",
+    "auth.admin": "有司",
+    "auth.out": "出阁",
+    "auth.logged_in": "已登阁。",
+    "auth.logged_out": "已出阁。",
+    "auth.failed": "未果。",
+    
+    // Rules / RulesGate
+    "rules.title": "约法",
+    "rules.before_enter": "凡入此门",
+    "rules.liability_waiver": "免责声明",
+    "rules.agreement": "吾已及舞勺之年（十三岁以上），谨遵约法，并纳免责之契——不以本站之文罪及作者与有司。",
+    "rules.understand_agree": "吾知晓并允之",
+    "rules.read_full": "尽览约法",
+    
+    // Boards & Threads Listing
+    "board.threads_count": "{count} 议",
+    "board.replies_count": "{count} 答",
+    "board.readonly": "此版唯读。非有司不可着墨。",
+    "board.no_threads": "暂无陈述。试鸣第一声。",
+    "board.lock": "扃锁",
+    "board.pin": "高悬",
+    "catalog.loading": "候之…",
+    "catalog.load_more": "更展余卷",
+    "card.no_text": "(无文墨)",
+    
+    // Composer (Thread / Reply)
+    "composer.new_thread": "+ 启新议",
+    "composer.subject_placeholder": "题署 (自便)",
+    "composer.anonymous_placeholder": "无名氏 (名讳#暗号自便)",
+    "composer.body_placeholder_thread": "胸中何意？",
+    "composer.body_placeholder_reply": "附议… (>青碧字, >>引文, [s]隐墨[/s])",
+    "composer.image": "丹青",
+    "composer.cancel": "作罢",
+    "composer.post_thread": "启议",
+    "composer.posting": "修撰中…",
+    "composer.reply": "附议",
+    "composer.thread_failed": "启议未果。",
+    "composer.reply_failed": "附议未果。再试之。",
+    "composer.thread_locked": "此议已扃。",
+    "composer.sage": "下沉(sage)",
+    
+    // Post actions / state
+    "post.anonymous": "无名氏",
+    "post.deleted": "[已佚]",
+    "post.posting": "修撰中…",
+    "post.ban": "流放",
+    "post.report": "纠弹此文",
+    "post.delete_title": "削去 (发帖一时半之内)",
+    
+    // Dialogs / alerts
+    "alert.delete_confirm": "确欲削去此文乎？",
+    "alert.delete_failed": "未能削去此文。",
+    "alert.ban_confirm": "确欲流放此人乎？非赦免不得归。",
+    "alert.ban_reason": "流放事由 (自便):",
+    "alert.ban_failed": "流放未果。",
+    "alert.ban_success": "已流放之。",
+    "alert.reported": "已告发。",
+    "alert.report_failed": "告发未果。",
+    "report.title": "告发第 #{postId} 文",
+    "report.reason_placeholder": "事由 (自便)",
+    "report.cancel": "作罢",
+    "report.submit": "纠弹",
+    
+    // Admin login
+    "admin.login.title": "xhw life — 有司入署",
+    "admin.login.placeholder.handle": "名讳",
+    "admin.login.placeholder.password": "印信",
+    "admin.login.button": "登堂",
+    "admin.login.failed": "登堂未果。",
   }
 };
 
-export type Locale = "en" | "zh";
+export type Locale = "en" | "zh" | "lzh";
 
 export function translate(locale: Locale, key: keyof typeof locales.en, variables?: Record<string, string | number>): string {
   const dict = locales[locale] || locales.en;
@@ -195,3 +283,4 @@ export function translate(locale: Locale, key: keyof typeof locales.en, variable
   }
   return text;
 }
+

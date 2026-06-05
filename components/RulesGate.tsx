@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
-import { RULES_en, RULES_zh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, RULES_VERSION } from "@/lib/rules";
+import { RULES_en, RULES_zh, RULES_lzh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, LIABILITY_WAIVER_lzh, RULES_VERSION } from "@/lib/rules";
 import { useI18n } from "@/lib/i18n/client";
 
 const COOKIE = "xhw_rules_accepted";
@@ -32,8 +32,8 @@ export function RulesGate() {
     setDismissed(true);
   }
 
-  const rules = locale === "zh" ? RULES_zh : RULES_en;
-  const liabilityWaiver = locale === "zh" ? LIABILITY_WAIVER_zh : LIABILITY_WAIVER_en;
+  const rules = locale === "zh" ? RULES_zh : locale === "lzh" ? RULES_lzh : RULES_en;
+  const liabilityWaiver = locale === "zh" ? LIABILITY_WAIVER_zh : locale === "lzh" ? LIABILITY_WAIVER_lzh : LIABILITY_WAIVER_en;
 
   return (
     <div

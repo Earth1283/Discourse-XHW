@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { RULES_en, RULES_zh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh } from "@/lib/rules";
+import { RULES_en, RULES_zh, RULES_lzh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, LIABILITY_WAIVER_lzh } from "@/lib/rules";
 import { getServerTranslations } from "@/lib/i18n/server";
 
 export default async function RulesPage() {
   const { locale, t } = await getServerTranslations();
-  const rules = locale === "zh" ? RULES_zh : RULES_en;
-  const liabilityWaiver = locale === "zh" ? LIABILITY_WAIVER_zh : LIABILITY_WAIVER_en;
+  const rules = locale === "zh" ? RULES_zh : locale === "lzh" ? RULES_lzh : RULES_en;
+  const liabilityWaiver = locale === "zh" ? LIABILITY_WAIVER_zh : locale === "lzh" ? LIABILITY_WAIVER_lzh : LIABILITY_WAIVER_en;
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">

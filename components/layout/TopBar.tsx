@@ -22,6 +22,18 @@ function toggleTheme() {
   }
 }
 
+const cycleLocale = {
+  en: "zh",
+  zh: "lzh",
+  lzh: "en",
+} as const;
+
+const switcherTitles = {
+  en: "Switch to Chinese",
+  zh: "切换为文言",
+  lzh: "易调英文",
+} as const;
+
 export function TopBar({ boards }: { boards: BoardDTO[] }) {
   const { locale, t, setLocale } = useI18n();
 
@@ -52,13 +64,13 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
         <AuthMenu />
 
         <button
-          onClick={() => setLocale(locale === "en" ? "zh" : "en")}
-          title={locale === "en" ? "Switch to Chinese" : "切换为英文"}
-          aria-label={locale === "en" ? "Switch to Chinese" : "切换为英文"}
+          onClick={() => setLocale(cycleLocale[locale])}
+          title={switcherTitles[locale]}
+          aria-label={switcherTitles[locale]}
           className="flex items-center gap-1 rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         >
           <Languages size={16} />
-          <span className="font-mono text-[10px] font-bold uppercase">{locale === "en" ? "zh" : "en"}</span>
+          <span className="font-mono text-[10px] font-bold uppercase">{cycleLocale[locale]}</span>
         </button>
 
         <button
