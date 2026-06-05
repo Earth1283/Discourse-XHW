@@ -34,6 +34,7 @@ export function RulesGate() {
     <div
       role="dialog"
       aria-modal
+      data-testid="rules-gate"
       className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4"
     >
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">

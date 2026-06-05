@@ -1,0 +1,15 @@
+[Unit]
+Description=XHW Life forum
+After=network.target
+
+[Service]
+Type=simple
+User=xhw
+WorkingDirectory=/srv/xhw/app
+EnvironmentFile=/srv/xhw/.env.production
+ExecStart=/usr/bin/node_modules/.bin/next start
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

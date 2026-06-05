@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ./data/ci.db
+      SESSION_SECRET: ci-session-secret-placeholder-32c
+      IP_HASH_SALT: ci-ip-hash-salt
+      TRIPCODE_SALT: ci-tripcode-salt
+      ADMIN_HANDLE: admin
+      ADMIN_PASSWORD: changeme123ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Migrate DB
+        run: npm run db:migrate
+
+      - name: Seed DB
+        run: npm run db:seed
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      DATABASE_URL: ./data/e2e.db
+      SESSION_SECRET: e2e-session-secret-placeholder-32c
+      IP_HASH_SALT: e2e-ip-salt
+      TRIPCODE_SALT: e2e-trip-salt
+      ADMIN_HANDLE: admin
+      ADMIN_PASSWORD: changeme123ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Migrate + seed
+        run: npm run db:migrate && npm run db:seed
+
+      - name: Build
+        run: npm run build
+
+      - name: E2E tests
+        run: npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
