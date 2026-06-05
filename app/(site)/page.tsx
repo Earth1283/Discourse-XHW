@@ -3,6 +3,7 @@ import { Lock } from "lucide-react";
 import { listBoards } from "@/lib/db/services/boards";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { translateBoard } from "@/lib/i18n/locales";
+import { ClassicalText } from "@/components/lzh/ClassicalText";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,9 @@ export default async function Home() {
               <span className="font-medium">{translateBoard(locale, b.id, "name", b.name)}</span>
               {b.adminOnlyPost && <Lock size={12} className="text-[var(--color-muted)]" />}
             </div>
-            <p className="mt-2 text-sm text-[var(--color-muted)]">{translateBoard(locale, b.id, "description", b.description)}</p>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">
+              <ClassicalText text={translateBoard(locale, b.id, "description", b.description)} />
+            </p>
             <p className="mt-3 font-mono text-xs text-[var(--color-muted)]">
               {t("board.threads_count", { count: b.liveThreads })}
             </p>

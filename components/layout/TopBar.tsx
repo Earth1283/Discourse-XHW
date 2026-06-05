@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SunMoon, Languages, ScrollText } from "lucide-react";
+import { SunMoon, Languages } from "lucide-react";
 import type { BoardDTO } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { AuthMenu } from "./AuthMenu";
@@ -57,18 +57,28 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
               /{b.id}/
             </Link>
           ))}
+          <div className="mx-1 h-3 w-[1px] shrink-0 bg-[var(--color-border)]" />
+          <Link
+            href="/rules"
+            className={cn(
+              "shrink-0 rounded px-1.5 py-0.5 font-mono text-xs text-[var(--color-muted)]",
+              "hover:bg-[var(--color-surface-2)] hover:text-[var(--color-accent)]",
+            )}
+          >
+            {t("nav.rules")}
+          </Link>
+          <Link
+            href="/help"
+            className={cn(
+              "shrink-0 rounded px-1.5 py-0.5 font-mono text-xs text-[var(--color-muted)]",
+              "hover:bg-[var(--color-surface-2)] hover:text-[var(--color-accent)]",
+            )}
+          >
+            {t("nav.help")}
+          </Link>
         </nav>
 
         <SearchBar />
-
-        <Link
-          href="/rules"
-          title={t("nav.rules")}
-          aria-label={t("nav.rules")}
-          className="rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
-        >
-          <ScrollText size={16} />
-        </Link>
 
         <AuthMenu />
 

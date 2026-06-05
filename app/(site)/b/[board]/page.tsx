@@ -8,6 +8,7 @@ import { ThreadComposer } from "@/components/thread/ThreadComposer";
 import { getSession } from "@/lib/auth/session";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { translateBoard } from "@/lib/i18n/locales";
+import { ClassicalText } from "@/components/lzh/ClassicalText";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,9 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
           </span>
           <span className="text-lg font-medium">{translateBoard(locale, brd.id, "name", brd.name)}</span>
         </h1>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">{translateBoard(locale, brd.id, "description", brd.description)}</p>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">
+          <ClassicalText text={translateBoard(locale, brd.id, "description", brd.description)} />
+        </p>
       </div>
 
       {canPost ? (

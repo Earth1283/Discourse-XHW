@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RULES_en, RULES_zh, RULES_lzh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, LIABILITY_WAIVER_lzh } from "@/lib/rules";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { RulesResetButton } from "@/components/rules/RulesResetButton";
+import { ClassicalText } from "@/components/lzh/ClassicalText";
 
 export default async function RulesPage() {
   const { locale, t } = await getServerTranslations();
@@ -21,12 +22,14 @@ export default async function RulesPage() {
         <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-danger)]">
           {t("rules.liability_waiver")}
         </p>
-        <p className="text-sm leading-relaxed text-[var(--color-text)]">{liabilityWaiver}</p>
+        <p className="text-sm leading-relaxed text-[var(--color-text)]">
+          <ClassicalText text={liabilityWaiver} />
+        </p>
       </div>
 
       <ol className="mt-6 list-decimal space-y-3 pl-5 text-sm text-[var(--color-muted)]">
         {rules.map((r, i) => (
-          <li key={i}>{r}</li>
+          <li key={i}><ClassicalText text={r} /></li>
         ))}
       </ol>
 
