@@ -26,7 +26,7 @@ function extractDefinition(raw: string): string {
   if (!raw) return "";
   return raw
     .replace(/【[^】]*】/g, "")
-    .replace(/[▸▷△◆◉]/g, "")
+    .replace(/[▸▷△◆◉`~]/g, "")
     .replace(/^\s*\d+[.、]\s*/m, "")
     .trim()
     .split(/[。！？]/)[0]

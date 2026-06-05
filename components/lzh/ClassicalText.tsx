@@ -81,7 +81,7 @@ export function ClassicalText({ text }: { text: string }) {
 
         const result = await fetchDict(query);
         setSel((prev) => prev ? { ...prev, entry: result } : null);
-      }, 750);
+      }, 1500);
     }
 
     document.addEventListener("selectionchange", onSelChange);
