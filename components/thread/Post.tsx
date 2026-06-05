@@ -6,6 +6,7 @@ import { RelTime } from "@/components/RelTime";
 import { PostBody } from "./PostBody";
 import { DeleteButton } from "./DeleteButton";
 import { ReportButton } from "./ReportButton";
+import { useI18n } from "@/lib/i18n/client";
 
 export function Post({
   post,
@@ -16,6 +17,8 @@ export function Post({
   threadId: string;
   isAdmin?: boolean;
 }) {
+  const { t } = useI18n();
+
   return (
     <article
       id={`p-${post.id}`}
@@ -27,7 +30,7 @@ export function Post({
     >
       <div className="mb-1.5 flex flex-wrap items-center gap-2 font-mono text-xs text-[var(--color-muted)]">
         <span className={post.name === "Anonymous" ? "" : "text-[var(--color-text)]"}>
-          {post.name}
+          {post.name === "Anonymous" ? t("post.anonymous") : post.name}
         </span>
         {post.tripcode && <span className="text-[var(--color-accent)]">{post.tripcode}</span>}
         <span className="text-[var(--color-border)]">·</span>
@@ -35,7 +38,7 @@ export function Post({
         <span className="text-[var(--color-border)]">·</span>
         <RelTime ts={post.createdAt} />
         {post.pending && (
-          <span className="font-mono text-xs text-[var(--color-muted)]">posting…</span>
+          <span className="font-mono text-xs text-[var(--color-muted)]">{t("post.posting")}</span>
         )}
 
         {!post.pending && (
@@ -62,7 +65,7 @@ export function Post({
       </div>
 
       {post.deleted ? (
-        <p className="text-sm italic text-[var(--color-muted)]">[deleted]</p>
+        <p className="text-sm italic text-[var(--color-muted)]">{t("post.deleted")}</p>
       ) : (
         <>
           {post.imagePath && (
@@ -86,9 +89,11 @@ export function Post({
 }
 
 function AdminBanButton({ postId }: { postId: string }) {
+  const { t } = useI18n();
+
   async function ban() {
-    if (!confirm("Ban this poster? This is permanent unless lifted.")) return;
-    const reason = prompt("Ban reason (optional):") ?? undefined;
+    if (!confirm(t("alert.ban_confirm"))) return;
+    const reason = prompt(t("alert.ban_reason")) ?? undefined;
     try {
       const res = await fetch(`/api/admin/posts/${postId}/ban`, {
         method: "POST",
@@ -97,22 +102,22 @@ function AdminBanButton({ postId }: { postId: string }) {
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        alert(j?.error?.message ?? "Ban failed.");
+        alert(j?.error?.message ?? t("alert.ban_failed"));
       } else {
-        alert("Poster banned.");
+        alert(t("alert.ban_success"));
       }
     } catch {
-      alert("Ban failed.");
+      alert(t("alert.ban_failed"));
     }
   }
 
   return (
     <button
       onClick={ban}
-      title="Ban poster"
+      title={t("post.ban")}
       className="font-mono text-[10px] text-[var(--color-muted)] hover:text-[var(--color-danger)]"
     >
-      ban
+      {t("post.ban")}
     </button>
   );
 }

@@ -6,9 +6,11 @@ import { qk } from "@/lib/query/keys";
 import { apiFetch } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import type { ThreadData } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 export function DeleteButton({ postId, threadId }: { postId: string; threadId: string }) {
   const qc = useQueryClient();
+  const { t } = useI18n();
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => apiFetch(`/api/posts/${postId}`, { method: "DELETE" }),
@@ -31,7 +33,7 @@ export function DeleteButton({ postId, threadId }: { postId: string; threadId: s
 
     onError: (_e, _v, ctx) => {
       if (ctx?.prev) qc.setQueryData(qk.thread(threadId), ctx.prev);
-      toast.error("Couldn't delete the post.");
+      toast.error(t("alert.delete_failed"));
     },
 
     onSettled: () => qc.invalidateQueries({ queryKey: qk.thread(threadId) }),
@@ -40,11 +42,12 @@ export function DeleteButton({ postId, threadId }: { postId: string; threadId: s
   return (
     <button
       onClick={() => {
-        if (!confirm("Delete this post?")) return;
+        if (!confirm(t("alert.delete_confirm"))) return;
         mutate();
       }}
       disabled={isPending}
-      title="Delete (within 180 min of posting)"
+      title={t("post.delete_title")}
+      data-testid="delete-btn"
       className="text-[var(--color-muted)] hover:text-[var(--color-danger)] disabled:opacity-40"
     >
       <Trash2 size={13} />

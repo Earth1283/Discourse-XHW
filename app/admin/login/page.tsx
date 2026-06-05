@@ -4,13 +4,16 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { apiFetch } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { Providers } from "@/app/providers";
+import { useI18n } from "@/lib/i18n/client";
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const [handle, setHandle] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const { t } = useI18n();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +27,7 @@ export default function AdminLoginPage() {
       });
       router.push("/admin");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Login failed.");
+      setErr(e instanceof Error ? e.message : t("admin.login.failed"));
       setBusy(false);
     }
   }
@@ -36,11 +39,11 @@ export default function AdminLoginPage() {
         className="w-full max-w-xs rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6"
       >
         <h1 className="mb-5 font-mono text-sm lowercase tracking-tight text-[var(--color-text)]">
-          xhw life — admin
+          {t("admin.login.title")}
         </h1>
         <input
           type="text"
-          placeholder="handle"
+          placeholder={t("admin.login.placeholder.handle")}
           value={handle}
           onChange={(e) => setHandle(e.target.value)}
           autoComplete="username"
@@ -52,7 +55,7 @@ export default function AdminLoginPage() {
         />
         <input
           type="password"
-          placeholder="password"
+          placeholder={t("admin.login.placeholder.password")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
@@ -68,9 +71,17 @@ export default function AdminLoginPage() {
           disabled={busy || !handle || !password}
           className="w-full rounded-[var(--radius)] bg-[var(--color-accent)] py-2 font-mono text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-40"
         >
-          {busy ? "…" : "login"}
+          {busy ? "…" : t("admin.login.button")}
         </button>
       </form>
     </main>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Providers>
+      <AdminLoginForm />
+    </Providers>
   );
 }

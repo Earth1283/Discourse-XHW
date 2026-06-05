@@ -5,6 +5,18 @@ import { test, expect } from "@playwright/test";
 
 const BOARD = "gen";
 
+async function acceptRulesGate(page: any) {
+  const gate = page.locator('[data-testid="rules-gate"]');
+  try {
+    await expect(gate).toBeVisible({ timeout: 2000 });
+    await page.getByTestId("rules-checkbox").check();
+    await page.getByTestId("rules-accept-btn").click();
+    await expect(gate).not.toBeVisible();
+  } catch (e) {
+    // Gate not shown or already accepted
+  }
+}
+
 test.describe("XHW Life smoke flow", () => {
   test("rules gate: shown on first visit, dismissed on accept, gone after reload", async ({
     page,
@@ -17,7 +29,8 @@ test.describe("XHW Life smoke flow", () => {
     const gate = page.locator('[data-testid="rules-gate"]');
     await expect(gate).toBeVisible({ timeout: 5_000 });
 
-    await page.getByRole("button", { name: /i agree/i }).click();
+    await page.getByTestId("rules-checkbox").check();
+    await page.getByTestId("rules-accept-btn").click();
     await expect(gate).not.toBeVisible();
 
     // Reload — gate must stay dismissed
@@ -30,16 +43,14 @@ test.describe("XHW Life smoke flow", () => {
     await page.goto(`/b/${BOARD}`);
 
     // Accept rules gate if shown
-    const gate = page.locator('[data-testid="rules-gate"]');
-    if (await gate.isVisible()) {
-      await page.getByRole("button", { name: /i agree/i }).click();
-    }
+    await acceptRulesGate(page);
 
     const uniqueBody = `e2e-test-${Date.now()}`;
 
     // Open thread composer and post
-    await page.getByPlaceholder(/your message/i).fill(uniqueBody);
-    await page.getByRole("button", { name: /post/i }).first().click();
+    await page.getByTestId("new-thread-btn").click();
+    await page.getByTestId("thread-body-input").fill(uniqueBody);
+    await page.getByTestId("thread-post-btn").click();
 
     // Should redirect to thread page
     await page.waitForURL(/\/b\/.+\/.+/);
@@ -55,21 +66,19 @@ test.describe("XHW Life smoke flow", () => {
     await context.clearCookies();
     await page.goto(`/b/${BOARD}`);
 
-    const gate = page.locator('[data-testid="rules-gate"]');
-    if (await gate.isVisible()) {
-      await page.getByRole("button", { name: /i agree/i }).click();
-    }
+    await acceptRulesGate(page);
 
     // Create a thread first
     const threadBody = `reply-test-${Date.now()}`;
-    await page.getByPlaceholder(/your message/i).fill(threadBody);
-    await page.getByRole("button", { name: /post/i }).first().click();
+    await page.getByTestId("new-thread-btn").click();
+    await page.getByTestId("thread-body-input").fill(threadBody);
+    await page.getByTestId("thread-post-btn").click();
     await page.waitForURL(/\/b\/.+\/.+/);
 
     // Post a reply
     const replyBody = `reply-${Date.now()}`;
-    await page.getByPlaceholder(/your reply/i).fill(replyBody);
-    await page.getByRole("button", { name: /reply/i }).click();
+    await page.getByTestId("reply-body-input").fill(replyBody);
+    await page.getByTestId("reply-post-btn").click();
 
     // Optimistic: appears quickly
     await expect(page.locator("body")).toContainText(replyBody, { timeout: 3_000 });
@@ -86,24 +95,23 @@ test.describe("XHW Life smoke flow", () => {
     await context.clearCookies();
     await page.goto(`/b/${BOARD}`);
 
-    const gate = page.locator('[data-testid="rules-gate"]');
-    if (await gate.isVisible()) {
-      await page.getByRole("button", { name: /i agree/i }).click();
-    }
+    await acceptRulesGate(page);
 
     // Create thread
-    await page.getByPlaceholder(/your message/i).fill(`del-test-${Date.now()}`);
-    await page.getByRole("button", { name: /post/i }).first().click();
+    await page.getByTestId("new-thread-btn").click();
+    await page.getByTestId("thread-body-input").fill(`del-test-${Date.now()}`);
+    await page.getByTestId("thread-post-btn").click();
     await page.waitForURL(/\/b\/.+\/.+/);
 
     // Post reply
     const replyText = `to-delete-${Date.now()}`;
-    await page.getByPlaceholder(/your reply/i).fill(replyText);
-    await page.getByRole("button", { name: /reply/i }).click();
+    await page.getByTestId("reply-body-input").fill(replyText);
+    await page.getByTestId("reply-post-btn").click();
     await expect(page.locator("body")).toContainText(replyText, { timeout: 3_000 });
 
     // Click delete on the reply (only appears for own posts)
-    const deleteBtn = page.locator("button", { hasText: /^del$/i }).last();
+    const deleteBtn = page.getByTestId("delete-btn").last();
+    page.once("dialog", (dialog) => dialog.accept());
     await deleteBtn.click();
 
     // Should show [deleted]
@@ -130,18 +138,17 @@ test.describe("XHW Life smoke flow", () => {
 
     // Navigate to a board and create a thread to delete
     await page.goto(`/b/${BOARD}`);
-    const gate = page.locator('[data-testid="rules-gate"]');
-    if (await gate.isVisible()) {
-      await page.getByRole("button", { name: /i agree/i }).click();
-    }
+    await acceptRulesGate(page);
 
     const targetBody = `admin-delete-test-${Date.now()}`;
-    await page.getByPlaceholder(/your message/i).fill(targetBody);
-    await page.getByRole("button", { name: /post/i }).first().click();
+    await page.getByTestId("new-thread-btn").click();
+    await page.getByTestId("thread-body-input").fill(targetBody);
+    await page.getByTestId("thread-post-btn").click();
     await page.waitForURL(/\/b\/.+\/.+/);
 
     // Admin delete button should be visible
-    const adminDelBtn = page.locator("button", { hasText: /^del$/i }).first();
+    const adminDelBtn = page.getByTestId("delete-btn").first();
+    page.once("dialog", (dialog) => dialog.accept());
     await adminDelBtn.click();
     await expect(page.locator("body")).toContainText("[deleted]", { timeout: 5_000 });
   });

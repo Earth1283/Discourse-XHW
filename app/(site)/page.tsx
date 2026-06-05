@@ -1,18 +1,21 @@
 import Link from "next/link";
 import { Lock } from "lucide-react";
 import { listBoards } from "@/lib/db/services/boards";
+import { getServerTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
   const boards = listBoards();
+  const { t } = await getServerTranslations();
+
   return (
     <main className="mx-auto max-w-5xl px-4 py-12">
       <header className="mb-8">
         <h1 className="font-mono text-2xl lowercase tracking-tight text-[var(--color-text)]">
-          xhw<span className="text-[var(--color-accent)]"> life</span>
+          xhw<span className="text-[var(--color-accent)]"> {t("logo.life")}</span>
         </h1>
-        <p className="mt-1 font-mono text-sm text-[var(--color-muted)]">{"// boards"}</p>
+        <p className="mt-1 font-mono text-sm text-[var(--color-muted)]">{t("home.boards")}</p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -31,7 +34,7 @@ export default function Home() {
             </div>
             <p className="mt-2 text-sm text-[var(--color-muted)]">{b.description}</p>
             <p className="mt-3 font-mono text-xs text-[var(--color-muted)]">
-              {b.liveThreads} {b.liveThreads === 1 ? "thread" : "threads"}
+              {t("board.threads_count", { count: b.liveThreads })}
             </p>
           </Link>
         ))}

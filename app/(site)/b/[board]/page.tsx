@@ -6,6 +6,7 @@ import { ThreadCard } from "@/components/board/ThreadCard";
 import { CatalogLoadMore } from "@/components/board/CatalogLoadMore";
 import { ThreadComposer } from "@/components/thread/ThreadComposer";
 import { getSession } from "@/lib/auth/session";
+import { getServerTranslations } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,12 +18,13 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
   const cards = listThreadCards(board, 0);
   const session = await getSession();
   const canPost = !brd.adminOnlyPost || session?.role === "admin";
+  const { t } = await getServerTranslations();
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6">
         <Link href="/" className="font-mono text-xs text-[var(--color-muted)] hover:underline">
-          ← boards
+          {t("nav.boards")}
         </Link>
         <h1 className="mt-1 flex items-center gap-2">
           <span className="rounded bg-[var(--color-surface-2)] px-1.5 py-0.5 font-mono text-sm text-[var(--color-accent)]">
@@ -37,13 +39,13 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
         <ThreadComposer board={board} />
       ) : (
         <p className="mb-6 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm text-[var(--color-muted)]">
-          This board is read-only. Only admins can post.
+          {t("board.readonly")}
         </p>
       )}
 
       {cards.length === 0 ? (
         <p className="py-16 text-center font-mono text-sm text-[var(--color-muted)]">
-          No threads yet. Start the fire.
+          {t("board.no_threads")}
         </p>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

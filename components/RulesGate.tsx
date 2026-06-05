@@ -2,7 +2,8 @@
 
 import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
-import { RULES, RULES_VERSION, LIABILITY_WAIVER } from "@/lib/rules";
+import { RULES_en, RULES_zh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, RULES_VERSION } from "@/lib/rules";
+import { useI18n } from "@/lib/i18n/client";
 
 const COOKIE = "xhw_rules_accepted";
 
@@ -21,6 +22,7 @@ export function RulesGate() {
   );
   const [dismissed, setDismissed] = useState(false);
   const [checked, setChecked] = useState(false);
+  const { locale, t } = useI18n();
 
   const open = cookieVersion !== RULES_VERSION && !dismissed;
   if (!open) return null;
@@ -30,6 +32,9 @@ export function RulesGate() {
     setDismissed(true);
   }
 
+  const rules = locale === "zh" ? RULES_zh : RULES_en;
+  const liabilityWaiver = locale === "zh" ? LIABILITY_WAIVER_zh : LIABILITY_WAIVER_en;
+
   return (
     <div
       role="dialog"
@@ -38,17 +43,17 @@ export function RulesGate() {
       className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4"
     >
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
-        <h2 className="font-mono text-lg lowercase tracking-tight">before you enter</h2>
+        <h2 className="font-mono text-lg lowercase tracking-tight">{t("rules.before_enter")}</h2>
 
         <div className="mt-4 rounded-[var(--radius)] border border-[var(--color-danger)]/40 bg-[var(--color-danger)]/5 p-3">
           <p className="mb-1.5 font-mono text-xs uppercase tracking-wider text-[var(--color-danger)]">
-            liability waiver
+            {t("rules.liability_waiver")}
           </p>
-          <p className="text-xs leading-relaxed text-[var(--color-text)]">{LIABILITY_WAIVER}</p>
+          <p className="text-xs leading-relaxed text-[var(--color-text)]">{liabilityWaiver}</p>
         </div>
 
         <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-[var(--color-muted)]">
-          {RULES.map((r, i) => (
+          {rules.map((r, i) => (
             <li key={i}>{r}</li>
           ))}
         </ul>
@@ -59,24 +64,23 @@ export function RulesGate() {
             checked={checked}
             onChange={(e) => setChecked(e.target.checked)}
             className="mt-0.5"
+            data-testid="rules-checkbox"
           />
-          <span>
-            I am at least 13, I agree to the rules, and I accept the liability waiver above — I
-            will not hold the author(s) or operator(s) liable for anything on this site.
-          </span>
+          <span>{t("rules.agreement")}</span>
         </label>
 
         <button
           onClick={accept}
           disabled={!checked}
+          data-testid="rules-accept-btn"
           className="mt-6 w-full rounded-[var(--radius)] bg-[var(--color-accent)] px-4 py-2 font-medium text-[var(--color-accent-ink)] transition-opacity disabled:opacity-40"
         >
-          I understand and agree
+          {t("rules.understand_agree")}
         </button>
 
         <p className="mt-3 text-center font-mono text-xs text-[var(--color-muted)]">
           <Link href="/rules" className="hover:underline">
-            read full rules
+            {t("rules.read_full")}
           </Link>
         </p>
       </div>

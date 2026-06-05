@@ -7,6 +7,7 @@ import { useSession } from "@/lib/hooks/useSession";
 import { apiFetch } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/lib/i18n/client";
 
 export function AuthMenu() {
   const session = useSession();
@@ -16,6 +17,7 @@ export function AuthMenu() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const { t } = useI18n();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,9 +33,9 @@ export function AuthMenu() {
       setOpen(false);
       setHandle("");
       setPassword("");
-      toast.success("Logged in.");
+      toast.success(t("auth.logged_in"));
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Failed.");
+      setErr(e instanceof Error ? e.message : t("auth.failed"));
     } finally {
       setBusy(false);
     }
@@ -42,7 +44,7 @@ export function AuthMenu() {
   async function logout() {
     await apiFetch("/api/auth/logout", { method: "POST" });
     await qc.invalidateQueries({ queryKey: ["session"] });
-    toast.info("Logged out.");
+    toast.info(t("auth.logged_out"));
   }
 
   if (session) {
@@ -53,7 +55,7 @@ export function AuthMenu() {
             href="/admin"
             className="rounded px-1.5 py-0.5 text-[var(--color-accent)] hover:bg-[var(--color-surface-2)]"
           >
-            admin
+            {t("auth.admin")}
           </Link>
         )}
         <span className="text-[var(--color-text)]">@{session.handle}</span>
@@ -61,7 +63,7 @@ export function AuthMenu() {
           onClick={logout}
           className="rounded px-1.5 py-0.5 hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         >
-          out
+          {t("auth.out")}
         </button>
       </div>
     );
@@ -73,7 +75,7 @@ export function AuthMenu() {
         onClick={() => setOpen(true)}
         className="shrink-0 rounded px-1.5 py-0.5 font-mono text-xs text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
       >
-        handle
+        {t("auth.handle")}
       </button>
 
       {open && (
@@ -86,11 +88,11 @@ export function AuthMenu() {
             className="w-full max-w-xs rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5"
           >
             <h2 className="mb-4 font-mono text-sm lowercase tracking-tight">
-              claim or log in
+              {t("auth.claim_or_login")}
             </h2>
             <input
               type="text"
-              placeholder="handle"
+              placeholder={t("auth.handle")}
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
               autoComplete="username"
@@ -102,7 +104,7 @@ export function AuthMenu() {
             />
             <input
               type="password"
-              placeholder="password"
+              placeholder={t("auth.password")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
@@ -114,7 +116,7 @@ export function AuthMenu() {
             />
             {err && <p className="mb-2 text-xs text-[var(--color-danger)]">{err}</p>}
             <p className="mb-3 font-mono text-xs text-[var(--color-muted)]">
-              new handle? claiming it creates your account.
+              {t("auth.new_handle_tip")}
             </p>
             <div className="flex gap-2">
               <button
@@ -122,14 +124,14 @@ export function AuthMenu() {
                 onClick={() => setOpen(false)}
                 className="flex-1 rounded-[var(--radius)] border border-[var(--color-border)] py-2 font-mono text-xs text-[var(--color-muted)] hover:text-[var(--color-text)]"
               >
-                cancel
+                {t("auth.cancel")}
               </button>
               <button
                 type="submit"
                 disabled={busy || !handle || !password}
                 className="flex-1 rounded-[var(--radius)] bg-[var(--color-accent)] py-2 font-mono text-xs font-medium text-[var(--color-accent-ink)] disabled:opacity-40"
               >
-                {busy ? "…" : "go"}
+                {busy ? "…" : t("auth.go")}
               </button>
             </div>
           </form>

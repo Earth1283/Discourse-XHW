@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
 import type { PostDTO, ThreadData } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ReplyComposer({
   threadId,
@@ -27,6 +28,7 @@ export function ReplyComposer({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
@@ -83,7 +85,7 @@ export function ReplyComposer({
     onError: (_e, _fd, ctx) => {
       if (ctx?.prev) qc.setQueryData(qk.thread(threadId), ctx.prev);
       if (ctx?.localPreview) URL.revokeObjectURL(ctx.localPreview);
-      toast.error("Post failed. Try again.");
+      toast.error(t("composer.reply_failed"));
     },
 
     onSuccess: (real, _fd, ctx) => {
@@ -105,7 +107,7 @@ export function ReplyComposer({
   if (locked) {
     return (
       <p className="rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm text-[var(--color-muted)]">
-        This thread is locked.
+        {t("composer.thread_locked")}
       </p>
     );
   }
@@ -130,12 +132,12 @@ export function ReplyComposer({
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Anonymous (name#tripcode optional)"
+          placeholder={t("composer.anonymous_placeholder")}
           className="min-w-48 flex-1"
         />
         <label className="flex items-center gap-1.5 font-mono text-xs text-[var(--color-muted)]">
           <input type="checkbox" checked={sage} onChange={(e) => setSage(e.target.checked)} />
-          sage
+          {t("composer.sage")}
         </label>
       </div>
 
@@ -160,14 +162,15 @@ export function ReplyComposer({
       <TextArea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="Reply… (>greentext, >>postid, [s]spoiler[/s])"
+        placeholder={t("composer.body_placeholder_reply")}
+        data-testid="reply-body-input"
         rows={3}
       />
 
       <div className="mt-2 flex items-center justify-between gap-2">
         <label className="flex cursor-pointer items-center gap-1.5 font-mono text-xs text-[var(--color-muted)] hover:text-[var(--color-text)]">
           <ImagePlus size={14} />
-          <span>{imageFile ? imageFile.name.slice(0, 20) : "image"}</span>
+          <span>{imageFile ? imageFile.name.slice(0, 20) : t("composer.image")}</span>
           <input
             ref={fileRef}
             type="file"
@@ -176,8 +179,8 @@ export function ReplyComposer({
             className="sr-only"
           />
         </label>
-        <Button type="submit" disabled={isPending || !body.trim()}>
-          {isPending ? "Posting…" : "Reply"}
+        <Button type="submit" disabled={isPending || !body.trim()} data-testid="reply-post-btn">
+          {isPending ? t("composer.posting") : t("composer.reply")}
         </Button>
       </div>
     </form>

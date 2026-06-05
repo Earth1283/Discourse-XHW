@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { Pin, Lock, MessageSquare } from "lucide-react";
 import type { ThreadCard as ThreadCardData } from "@/lib/types";
 import { RelTime } from "@/components/RelTime";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ThreadCard({ card }: { card: ThreadCardData }) {
+  const { t } = useI18n();
   return (
     <Link
       href={`/b/${card.boardId}/${card.id}`}
@@ -26,7 +30,7 @@ export function ThreadCard({ card }: { card: ThreadCardData }) {
           <div className="mb-1 font-medium leading-tight text-[var(--color-text)]">{card.title}</div>
         )}
         <p className="line-clamp-4 whitespace-pre-wrap text-sm text-[var(--color-muted)]">
-          {card.excerpt || "(no text)"}
+          {card.excerpt || t("card.no_text")}
         </p>
         <div className="mt-3 flex items-center gap-2 font-mono text-xs text-[var(--color-muted)]">
           {card.isPinned && <Pin size={12} className="text-[var(--color-accent)]" />}

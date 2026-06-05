@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import type { SearchResult } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 function useDebounce(value: string, ms: number) {
   const [debounced, setDebounced] = useState(value);
@@ -22,6 +23,7 @@ export function SearchBar() {
   const dq = useDebounce(q, 300);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   const { data = [] } = useQuery({
     queryKey: ["search", dq],
@@ -58,14 +60,14 @@ export function SearchBar() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => e.key === "Escape" && (setOpen(false), setQ(""))}
-            placeholder="search posts…"
+            placeholder={t("search.placeholder")}
             className="w-36 bg-transparent font-mono text-xs outline-none placeholder:text-[var(--color-muted)]"
           />
         </div>
       ) : (
         <button
           onClick={handleIconClick}
-          aria-label="Search"
+          aria-label={t("search.aria")}
           className="rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         >
           <Search size={16} />
@@ -75,7 +77,7 @@ export function SearchBar() {
       {showResults && (
         <div className="absolute right-0 top-full z-50 mt-1 w-80 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lg">
           {data.length === 0 ? (
-            <p className="px-3 py-2 font-mono text-xs text-[var(--color-muted)]">No results.</p>
+            <p className="px-3 py-2 font-mono text-xs text-[var(--color-muted)]">{t("search.no_results")}</p>
           ) : (
             <ul>
               {data.map((r) => (

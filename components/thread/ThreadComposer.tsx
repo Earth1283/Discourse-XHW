@@ -8,6 +8,7 @@ import type { Thread } from "@/lib/db/schema";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { TextArea } from "@/components/ui/TextArea";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ThreadComposer({ board }: { board: string }) {
   const router = useRouter();
@@ -20,6 +21,7 @@ export function ThreadComposer({ board }: { board: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   function pickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
@@ -54,7 +56,7 @@ export function ThreadComposer({ board }: { board: string }) {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       router.push(`/b/${board}/${data.thread.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create thread.");
+      setError(err instanceof Error ? err.message : t("composer.thread_failed"));
       setBusy(false);
     }
   }
@@ -62,7 +64,7 @@ export function ThreadComposer({ board }: { board: string }) {
   if (!open) {
     return (
       <div className="mb-6">
-        <Button onClick={() => setOpen(true)}>+ New thread</Button>
+        <Button onClick={() => setOpen(true)} data-testid="new-thread-btn">{t("composer.new_thread")}</Button>
       </div>
     );
   }
@@ -76,13 +78,13 @@ export function ThreadComposer({ board }: { board: string }) {
         <Input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Subject (optional)"
+          placeholder={t("composer.subject_placeholder")}
           className="min-w-48 flex-1"
         />
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Anonymous (name#trip)"
+          placeholder={t("composer.anonymous_placeholder")}
           className="w-52"
         />
       </div>
@@ -108,7 +110,8 @@ export function ThreadComposer({ board }: { board: string }) {
       <TextArea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="What's on your mind?"
+        placeholder={t("composer.body_placeholder_thread")}
+        data-testid="thread-body-input"
         rows={4}
       />
       {error && <p className="mt-2 text-sm text-[var(--color-danger)]">{error}</p>}
@@ -116,7 +119,7 @@ export function ThreadComposer({ board }: { board: string }) {
       <div className="mt-2 flex items-center justify-between gap-2">
         <label className="flex cursor-pointer items-center gap-1.5 font-mono text-xs text-[var(--color-muted)] hover:text-[var(--color-text)]">
           <ImagePlus size={14} />
-          <span>{imageFile ? imageFile.name.slice(0, 20) : "image"}</span>
+          <span>{imageFile ? imageFile.name.slice(0, 20) : t("composer.image")}</span>
           <input
             ref={fileRef}
             type="file"
@@ -134,10 +137,10 @@ export function ThreadComposer({ board }: { board: string }) {
               setOpen(false);
             }}
           >
-            Cancel
+            {t("composer.cancel")}
           </Button>
-          <Button type="submit" disabled={busy || !body.trim()}>
-            {busy ? "Posting…" : "Post thread"}
+          <Button type="submit" disabled={busy || !body.trim()} data-testid="thread-post-btn">
+            {busy ? t("composer.posting") : t("composer.post_thread")}
           </Button>
         </div>
       </div>

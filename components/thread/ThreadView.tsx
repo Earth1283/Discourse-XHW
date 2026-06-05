@@ -8,6 +8,7 @@ import { useSession } from "@/lib/hooks/useSession";
 import { Post } from "./Post";
 import { ReplyComposer } from "./ReplyComposer";
 import type { ThreadData } from "@/lib/types";
+import { useI18n } from "@/lib/i18n/client";
 
 export function ThreadView({ board, threadId }: { board: string; threadId: string }) {
   const { data } = useQuery({
@@ -16,6 +17,7 @@ export function ThreadView({ board, threadId }: { board: string; threadId: strin
   });
   const session = useSession();
   const isAdmin = session?.role === "admin";
+  const { t } = useI18n();
 
   // data is always present on first render due to SSR hydration
   if (!data) return null;
@@ -33,9 +35,9 @@ export function ThreadView({ board, threadId }: { board: string; threadId: strin
         </Link>
         {thread.title && <h1 className="mt-1 text-lg font-medium">{thread.title}</h1>}
         <p className="mt-1 font-mono text-xs text-[var(--color-muted)]">
-          {thread.replyCount} {thread.replyCount === 1 ? "reply" : "replies"}
-          {thread.isLocked && " · locked"}
-          {thread.isPinned && " · pinned"}
+          {t("board.replies_count", { count: thread.replyCount })}
+          {thread.isLocked && ` · ${t("board.lock")}`}
+          {thread.isPinned && ` · ${t("board.pin")}`}
         </p>
       </div>
 

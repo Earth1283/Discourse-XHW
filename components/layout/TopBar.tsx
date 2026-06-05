@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { SunMoon } from "lucide-react";
+import { SunMoon, Languages } from "lucide-react";
 import type { BoardDTO } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { AuthMenu } from "./AuthMenu";
 import { SearchBar } from "./SearchBar";
+import { useI18n } from "@/lib/i18n/client";
 
 // Theme is applied directly to the DOM (the pre-paint script in the root layout
 // sets the initial value). No React state — avoids hydration mismatch on the icon.
@@ -22,11 +23,13 @@ function toggleTheme() {
 }
 
 export function TopBar({ boards }: { boards: BoardDTO[] }) {
+  const { locale, t, setLocale } = useI18n();
+
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[color-mix(in_oklch,var(--color-bg)_80%,transparent)] backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-2.5">
         <Link href="/" className="font-mono text-base lowercase tracking-tight">
-          xhw<span className="text-[var(--color-accent)]"> life</span>
+          xhw<span className="text-[var(--color-accent)]"> {t("logo.life")}</span>
         </Link>
 
         <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
@@ -49,8 +52,19 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
         <AuthMenu />
 
         <button
+          onClick={() => setLocale(locale === "en" ? "zh" : "en")}
+          title={locale === "en" ? "Switch to Chinese" : "切换为英文"}
+          aria-label={locale === "en" ? "Switch to Chinese" : "切换为英文"}
+          className="flex items-center gap-1 rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
+        >
+          <Languages size={16} />
+          <span className="font-mono text-[10px] font-bold uppercase">{locale === "en" ? "zh" : "en"}</span>
+        </button>
+
+        <button
           onClick={toggleTheme}
-          aria-label="Toggle theme"
+          aria-label={t("theme.toggle")}
+          title={t("theme.toggle")}
           className="rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
         >
           <SunMoon size={16} />
