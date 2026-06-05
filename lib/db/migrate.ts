@@ -16,6 +16,20 @@ sqlite.pragma("foreign_keys = ON");
 const db = drizzle(sqlite);
 migrate(db, { migrationsFolder: "./lib/db/migrations" });
 
+// Audit log table (out-of-band, idempotent).
+sqlite.exec(`
+  CREATE TABLE IF NOT EXISTS audit_log (
+    id TEXT PRIMARY KEY,
+    admin_handle TEXT NOT NULL,
+    action TEXT NOT NULL,
+    target_type TEXT NOT NULL,
+    target_id TEXT NOT NULL,
+    detail TEXT,
+    created_at INTEGER NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS audit_log_created ON audit_log(created_at);
+`);
+
 // Full-text search over post bodies (FTS5). Created idempotently outside drizzle.
 sqlite.exec(`
   CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(

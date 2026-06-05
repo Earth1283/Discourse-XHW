@@ -5,6 +5,7 @@ import { SunMoon } from "lucide-react";
 import type { BoardDTO } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { AuthMenu } from "./AuthMenu";
+import { SearchBar } from "./SearchBar";
 
 // Theme is applied directly to the DOM (the pre-paint script in the root layout
 // sets the initial value). No React state — avoids hydration mismatch on the icon.
@@ -42,6 +43,8 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
             </Link>
           ))}
         </nav>
+
+        <SearchBar />
 
         <AuthMenu />
 

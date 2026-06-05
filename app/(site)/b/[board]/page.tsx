@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getBoard } from "@/lib/db/services/boards";
 import { listThreadCards } from "@/lib/db/services/threads";
 import { ThreadCard } from "@/components/board/ThreadCard";
+import { CatalogLoadMore } from "@/components/board/CatalogLoadMore";
 import { ThreadComposer } from "@/components/thread/ThreadComposer";
 import { getSession } from "@/lib/auth/session";
 
@@ -49,6 +50,7 @@ export default async function BoardPage({ params }: { params: Promise<{ board: s
           {cards.map((c) => (
             <ThreadCard key={c.id} card={c} />
           ))}
+          <CatalogLoadMore board={board} initialCount={cards.length} />
         </div>
       )}
     </main>

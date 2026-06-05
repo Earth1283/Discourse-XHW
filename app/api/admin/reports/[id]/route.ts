@@ -2,6 +2,7 @@ import { errorResponse, HttpError } from "@/lib/http";
 import { requireAdmin } from "@/lib/auth/session";
 import { resolveReport } from "@/lib/db/services/reports";
 import { getPost, softDeletePost } from "@/lib/db/services/posts";
+import { logAdminAction } from "@/lib/db/services/audit";
 import { db } from "@/lib/db/client";
 import { reports } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -14,20 +15,23 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
     const { id } = await params;
 
     const report = db.select().from(reports).where(eq(reports.id, id)).get();
     if (!report) throw new HttpError(404, "NO_REPORT", "Report not found.");
-
     const body = await req.json().catch(() => ({})) as { action?: string };
 
     if (body.action === "delete_post") {
       const post = getPost(report.postId);
-      if (post && !post.deletedAt) softDeletePost(report.postId, "admin");
+      if (post && !post.deletedAt) {
+        softDeletePost(report.postId, "admin");
+        logAdminAction({ adminHandle: session.handle, action: "soft_delete_post", targetType: "post", targetId: report.postId });
+      }
     }
 
     resolveReport(id);
+    logAdminAction({ adminHandle: session.handle, action: "resolve_report", targetType: "report", targetId: id });
     return Response.json({ data: { ok: true } });
   } catch (e) {
     return errorResponse(e);

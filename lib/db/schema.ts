@@ -79,7 +79,22 @@ export const bans = sqliteTable("bans", {
   expiresAt: integer("expires_at"), // null => permanent
 });
 
+export const auditLog = sqliteTable(
+  "audit_log",
+  {
+    id: text("id").primaryKey(),
+    adminHandle: text("admin_handle").notNull(),
+    action: text("action").notNull(),
+    targetType: text("target_type").notNull(), // "post" | "thread" | "ban" | "board" | "report"
+    targetId: text("target_id").notNull(),
+    detail: text("detail"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("audit_log_created").on(t.createdAt)],
+);
+
 export type Board = typeof boards.$inferSelect;
 export type Thread = typeof threads.$inferSelect;
 export type Post = typeof posts.$inferSelect;
 export type User = typeof users.$inferSelect;
+export type AuditEntry = typeof auditLog.$inferSelect;

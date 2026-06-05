@@ -6,6 +6,7 @@ import { getOrCreatePosterToken } from "@/lib/auth/tokens";
 import { parseName } from "@/lib/auth/tripcode";
 import { rateLimit } from "@/lib/ratelimit";
 import { assertNotDupe } from "@/lib/ratelimit/dupeguard";
+import { assertLinkCap } from "@/lib/validation/linkcap";
 import { CreateReplySchema } from "@/lib/validation/schemas";
 import { getThread } from "@/lib/db/services/threads";
 import { createReply } from "@/lib/db/services/posts";
@@ -41,6 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const token = await getOrCreatePosterToken();
     const input = CreateReplySchema.parse(fields);
     assertNotDupe(token, input.body);
+    assertLinkCap(token, input.body);
     const { name, tripcode } = parseName(input.name);
 
     const imageResult = image ? await processAndStore(image) : null;

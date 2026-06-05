@@ -215,11 +215,41 @@ function BansTab() {
   );
 }
 
+// ── Thread search result type ─────────────────────────────────────────────────
+
+type ThreadSearchRow = {
+  id: string;
+  boardId: string;
+  title: string | null;
+  replyCount: number;
+  bumpedAt: number;
+  isLocked: boolean;
+  isArchived: boolean;
+};
+
 // ── Threads tab ───────────────────────────────────────────────────────────────
 
 function ThreadsTab() {
+  const [searchQ, setSearchQ] = useState("");
+  const [searchResults, setSearchResults] = useState<ThreadSearchRow[]>([]);
+  const [searching, setSearching] = useState(false);
   const [threadId, setThreadId] = useState("");
   const [busy, setBusy] = useState(false);
+
+  async function runSearch() {
+    if (!searchQ.trim()) return;
+    setSearching(true);
+    try {
+      const data = await apiFetch<ThreadSearchRow[]>(
+        `/api/admin/search/threads?q=${encodeURIComponent(searchQ.trim())}`,
+      );
+      setSearchResults(data);
+    } catch {
+      toast.error("Search failed.");
+    } finally {
+      setSearching(false);
+    }
+  }
 
   async function patch(action: "lock" | "unlock" | "pin" | "unpin" | "archive") {
     if (!threadId.trim()) return;
@@ -244,30 +274,71 @@ function ThreadsTab() {
   }
 
   return (
-    <div>
-      <p className="mb-3 font-mono text-xs text-[var(--color-muted)]">Enter thread ID to manage.</p>
-      <input
-        value={threadId}
-        onChange={(e) => setThreadId(e.target.value)}
-        placeholder="Thread ID"
-        className="mb-3 w-full rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-2 font-mono text-sm outline-none focus:border-[var(--color-accent)]"
-      />
-      <div className="flex flex-wrap gap-2">
-        {(["lock", "unlock", "pin", "unpin", "archive"] as const).map((a) => (
+    <div className="space-y-4">
+      {/* Search */}
+      <div>
+        <p className="mb-2 font-mono text-xs text-[var(--color-muted)]">search by title or ID</p>
+        <div className="flex gap-2">
+          <input
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && runSearch()}
+            placeholder="title or thread ID"
+            className="flex-1 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-2 font-mono text-sm outline-none focus:border-[var(--color-accent)]"
+          />
           <button
-            key={a}
-            onClick={() => patch(a)}
-            disabled={busy || !threadId.trim()}
-            className={cn(
-              "rounded border px-2 py-1 font-mono text-xs disabled:opacity-40",
-              a === "archive"
-                ? "border-[var(--color-danger)]/50 text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
-                : "border-[var(--color-border)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",
-            )}
+            onClick={runSearch}
+            disabled={searching || !searchQ.trim()}
+            className="rounded border border-[var(--color-border)] px-3 py-1 font-mono text-xs hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] disabled:opacity-40"
           >
-            {a}
+            {searching ? "…" : "search"}
           </button>
-        ))}
+        </div>
+        {searchResults.length > 0 && (
+          <ul className="mt-2 space-y-1">
+            {searchResults.map((t) => (
+              <li key={t.id}>
+                <button
+                  onClick={() => setThreadId(t.id)}
+                  className="w-full rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-left hover:border-[var(--color-accent)]"
+                >
+                  <span className="font-mono text-xs text-[var(--color-accent)]">/{t.boardId}/ </span>
+                  <span className="font-mono text-xs text-[var(--color-text)]">{t.title ?? "(no title)"}</span>
+                  <span className="ml-2 font-mono text-xs text-[var(--color-muted)]">#{t.id}</span>
+                  {t.isLocked && <span className="ml-2 font-mono text-xs text-[var(--color-muted)]">locked</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Manage by ID */}
+      <div>
+        <p className="mb-2 font-mono text-xs text-[var(--color-muted)]">manage thread by ID</p>
+        <input
+          value={threadId}
+          onChange={(e) => setThreadId(e.target.value)}
+          placeholder="Thread ID"
+          className="mb-3 w-full rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-3 py-2 font-mono text-sm outline-none focus:border-[var(--color-accent)]"
+        />
+        <div className="flex flex-wrap gap-2">
+          {(["lock", "unlock", "pin", "unpin", "archive"] as const).map((a) => (
+            <button
+              key={a}
+              onClick={() => patch(a)}
+              disabled={busy || !threadId.trim()}
+              className={cn(
+                "rounded border px-2 py-1 font-mono text-xs disabled:opacity-40",
+                a === "archive"
+                  ? "border-[var(--color-danger)]/50 text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
+                  : "border-[var(--color-border)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]",
+              )}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -457,15 +528,54 @@ function MaintenanceTab() {
   );
 }
 
+// ── Audit tab ─────────────────────────────────────────────────────────────────
+
+type AuditRow = {
+  id: string;
+  adminHandle: string;
+  action: string;
+  targetType: string;
+  targetId: string;
+  detail: string | null;
+  createdAt: number;
+};
+
+function AuditTab() {
+  const { data: entries = [], isLoading } = useQuery({
+    queryKey: ["admin", "audit"],
+    queryFn: () => apiFetch<AuditRow[]>("/api/admin/audit"),
+    refetchInterval: 60_000,
+  });
+
+  if (isLoading) return <p className="text-sm text-[var(--color-muted)]">Loading…</p>;
+  if (entries.length === 0)
+    return <p className="font-mono text-sm text-[var(--color-muted)]">No admin actions recorded yet.</p>;
+
+  return (
+    <div className="space-y-1">
+      {entries.map((e) => (
+        <div key={e.id} className="flex flex-wrap items-baseline gap-2 rounded px-2 py-1 font-mono text-xs hover:bg-[var(--color-surface-2)]">
+          <span className="text-[var(--color-muted)]">{fmt(e.createdAt)}</span>
+          <span className="text-[var(--color-accent)]">@{e.adminHandle}</span>
+          <span className="text-[var(--color-text)]">{e.action}</span>
+          <span className="text-[var(--color-muted)]">{e.targetType}:{e.targetId}</span>
+          {e.detail && <span className="italic text-[var(--color-muted)]">{e.detail}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Dashboard shell ───────────────────────────────────────────────────────────
 
-type Tab = "reports" | "bans" | "threads" | "boards" | "maintenance";
+type Tab = "reports" | "bans" | "threads" | "boards" | "audit" | "maintenance";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "reports", label: "reports" },
   { id: "bans", label: "bans" },
   { id: "threads", label: "threads" },
   { id: "boards", label: "boards" },
+  { id: "audit", label: "audit" },
   { id: "maintenance", label: "maintenance" },
 ];
 
@@ -504,6 +614,7 @@ export function AdminDashboard({ handle }: { handle: string }) {
       {tab === "bans" && <BansTab />}
       {tab === "threads" && <ThreadsTab />}
       {tab === "boards" && <BoardsTab />}
+      {tab === "audit" && <AuditTab />}
       {tab === "maintenance" && <MaintenanceTab />}
     </div>
   );

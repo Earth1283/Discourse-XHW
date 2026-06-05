@@ -55,3 +55,11 @@ export type ThreadData = {
   thread: ThreadMeta;
   posts: PostDTO[];
 };
+
+export type SearchResult = {
+  postId: string;
+  threadId: string;
+  boardId: string;
+  excerpt: string;
+  createdAt: number;
+};
