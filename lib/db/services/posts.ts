@@ -1,6 +1,8 @@
 import "server-only";
 import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { promises as fs } from "fs";
+import path from "path";
 import { db } from "../client";
 import { posts, threads } from "../schema";
 import type { Post } from "../schema";
@@ -74,4 +76,19 @@ export function softDeletePost(postId: string, by: "self" | "admin"): void {
     .set({ deletedAt: Date.now(), deletedBy: by })
     .where(eq(posts.id, postId))
     .run();
+}
+
+/** Hard-delete: remove post row + any image files from disk. Admin-only. */
+export async function hardDeletePost(postId: string): Promise<void> {
+  const post = getPost(postId);
+  if (!post) return;
+
+  // Delete image files (best-effort — ignore ENOENT)
+  for (const relPath of [post.imagePath, post.thumbPath]) {
+    if (!relPath) continue;
+    const abs = path.join(config.uploadDir, relPath.replace(/^\/uploads\//, ""));
+    await fs.unlink(abs).catch(() => {});
+  }
+
+  db.delete(posts).where(eq(posts.id, postId)).run();
 }

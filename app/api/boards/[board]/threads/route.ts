@@ -6,6 +6,7 @@ import { getOrCreatePosterToken } from "@/lib/auth/tokens";
 import { parseName } from "@/lib/auth/tripcode";
 import { getSession } from "@/lib/auth/session";
 import { rateLimit } from "@/lib/ratelimit";
+import { assertNotDupe } from "@/lib/ratelimit/dupeguard";
 import { CreateThreadSchema } from "@/lib/validation/schemas";
 import { getBoard } from "@/lib/db/services/boards";
 import { createThread, listThreadCards } from "@/lib/db/services/threads";
@@ -55,6 +56,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ board: 
 
     const token = await getOrCreatePosterToken();
     const input = CreateThreadSchema.parse(fields);
+    assertNotDupe(token, input.body);
     const { name, tripcode } = parseName(input.name);
 
     const imageResult = image ? await processAndStore(image) : null;

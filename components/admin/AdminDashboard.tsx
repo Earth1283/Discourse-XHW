@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/cn";
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type ReportRow = {
   id: string;
@@ -25,17 +25,22 @@ type BanRow = {
   expiresAt: number | null;
 };
 
+type BoardRow = {
+  id: string;
+  name: string;
+  description: string;
+  sortOrder: number;
+  adminOnlyPost: boolean;
+  liveThreads: number;
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fmt(ts: number) {
   return new Date(ts).toLocaleString();
 }
 
-// ── Tabs ─────────────────────────────────────────────────────────────────────
-
-type Tab = "reports" | "bans";
-
-// ── Reports tab ──────────────────────────────────────────────────────────────
+// ── Reports tab ───────────────────────────────────────────────────────────────
 
 function ReportsTab() {
   const qc = useQueryClient();
@@ -66,6 +71,16 @@ function ReportsTab() {
       }),
     onSuccess: () => toast.success("Poster banned."),
     onError: () => toast.error("Ban failed."),
+  });
+
+  const hardPurge = useMutation({
+    mutationFn: (postId: string) =>
+      apiFetch(`/api/admin/posts/${postId}/purge`, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "reports"] });
+      toast.success("Post hard-purged.");
+    },
+    onError: () => toast.error("Purge failed."),
   });
 
   if (isLoading) return <p className="text-sm text-[var(--color-muted)]">Loading…</p>;
@@ -118,7 +133,18 @@ function ReportsTab() {
               disabled={resolve.isPending}
               className="rounded border border-[var(--color-danger)]/50 px-2 py-1 font-mono text-xs text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 disabled:opacity-40"
             >
-              delete post
+              soft delete
+            </button>
+            <button
+              onClick={() => {
+                if (!confirm("Hard-purge? This permanently removes the post row and image files."))
+                  return;
+                hardPurge.mutate(r.postId);
+              }}
+              disabled={hardPurge.isPending}
+              className="rounded border border-[var(--color-danger)]/50 px-2 py-1 font-mono text-xs text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 disabled:opacity-40"
+            >
+              hard purge
             </button>
             <button
               onClick={() => {
@@ -137,7 +163,7 @@ function ReportsTab() {
   );
 }
 
-// ── Bans tab ─────────────────────────────────────────────────────────────────
+// ── Bans tab ──────────────────────────────────────────────────────────────────
 
 function BansTab() {
   const qc = useQueryClient();
@@ -168,9 +194,7 @@ function BansTab() {
           className="flex flex-wrap items-center gap-3 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
         >
           <div className="flex-1 font-mono text-xs">
-            <span className="text-[var(--color-muted)]">
-              {b.ipHash.slice(0, 16)}…
-            </span>
+            <span className="text-[var(--color-muted)]">{b.ipHash.slice(0, 16)}…</span>
             {b.reason && (
               <span className="ml-2 text-[var(--color-text)]">{b.reason}</span>
             )}
@@ -191,7 +215,7 @@ function BansTab() {
   );
 }
 
-// ── Thread lookup ─────────────────────────────────────────────────────────────
+// ── Threads tab ───────────────────────────────────────────────────────────────
 
 function ThreadsTab() {
   const [threadId, setThreadId] = useState("");
@@ -201,15 +225,15 @@ function ThreadsTab() {
     if (!threadId.trim()) return;
     setBusy(true);
     try {
-      const patch: Record<string, boolean> = {};
-      if (action === "lock") patch.isLocked = true;
-      if (action === "unlock") patch.isLocked = false;
-      if (action === "pin") patch.isPinned = true;
-      if (action === "unpin") patch.isPinned = false;
-      if (action === "archive") patch.isArchived = true;
+      const p: Record<string, boolean> = {};
+      if (action === "lock") p.isLocked = true;
+      if (action === "unlock") p.isLocked = false;
+      if (action === "pin") p.isPinned = true;
+      if (action === "unpin") p.isPinned = false;
+      if (action === "archive") p.isArchived = true;
       await apiFetch(`/api/admin/threads/${threadId.trim()}`, {
         method: "PATCH",
-        body: JSON.stringify(patch),
+        body: JSON.stringify(p),
       });
       toast.success(`Thread ${action}ed.`);
     } catch (e) {
@@ -221,9 +245,7 @@ function ThreadsTab() {
 
   return (
     <div>
-      <p className="mb-3 font-mono text-xs text-[var(--color-muted)]">
-        Enter a thread ID to manage it.
-      </p>
+      <p className="mb-3 font-mono text-xs text-[var(--color-muted)]">Enter thread ID to manage.</p>
       <input
         value={threadId}
         onChange={(e) => setThreadId(e.target.value)}
@@ -251,15 +273,204 @@ function ThreadsTab() {
   );
 }
 
+// ── Boards tab ────────────────────────────────────────────────────────────────
+
+function BoardsTab() {
+  const qc = useQueryClient();
+  const { data: boardList = [], isLoading } = useQuery({
+    queryKey: ["admin", "boards"],
+    queryFn: () => apiFetch<BoardRow[]>("/api/admin/boards"),
+  });
+
+  const [newId, setNewId] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+
+  const createBoard = useMutation({
+    mutationFn: (body: { id: string; name: string; description: string }) =>
+      apiFetch("/api/admin/boards", { method: "POST", body: JSON.stringify(body) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "boards"] });
+      setNewId("");
+      setNewName("");
+      setNewDesc("");
+      toast.success("Board created.");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed."),
+  });
+
+  const updateBoard = useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      apiFetch(`/api/admin/boards/${id}`, { method: "PATCH", body: JSON.stringify(patch) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "boards"] });
+      toast.success("Board updated.");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed."),
+  });
+
+  const deleteBoard = useMutation({
+    mutationFn: (id: string) =>
+      apiFetch(`/api/admin/boards/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin", "boards"] });
+      toast.success("Board deleted.");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Failed."),
+  });
+
+  if (isLoading) return <p className="text-sm text-[var(--color-muted)]">Loading…</p>;
+
+  return (
+    <div className="space-y-4">
+      {/* Create form */}
+      <div className="rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+        <p className="mb-2 font-mono text-xs text-[var(--color-muted)]">new board</p>
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={newId}
+            onChange={(e) => setNewId(e.target.value)}
+            placeholder="id (e.g. gen)"
+            className="w-24 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 font-mono text-xs outline-none focus:border-[var(--color-accent)]"
+          />
+          <input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="display name"
+            className="flex-1 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 font-mono text-xs outline-none focus:border-[var(--color-accent)]"
+          />
+          <input
+            value={newDesc}
+            onChange={(e) => setNewDesc(e.target.value)}
+            placeholder="description (optional)"
+            className="flex-1 rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 font-mono text-xs outline-none focus:border-[var(--color-accent)]"
+          />
+          <button
+            onClick={() =>
+              createBoard.mutate({ id: newId.trim(), name: newName.trim(), description: newDesc.trim() })
+            }
+            disabled={createBoard.isPending || !newId.trim() || !newName.trim()}
+            className="rounded border border-[var(--color-border)] px-2 py-1 font-mono text-xs hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] disabled:opacity-40"
+          >
+            create
+          </button>
+        </div>
+      </div>
+
+      {/* Board list */}
+      {boardList.map((b) => (
+        <div
+          key={b.id}
+          className="rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+        >
+          <div className="mb-1.5 flex flex-wrap items-center gap-2 font-mono text-xs">
+            <span className="text-[var(--color-accent)]">/{b.id}/</span>
+            <span className="text-[var(--color-text)]">{b.name}</span>
+            <span className="text-[var(--color-muted)]">{b.liveThreads} threads</span>
+            {b.adminOnlyPost && (
+              <span className="rounded bg-[var(--color-danger)]/10 px-1 text-[var(--color-danger)]">
+                admin-only
+              </span>
+            )}
+            <div className="ml-auto flex gap-2">
+              <button
+                onClick={() =>
+                  updateBoard.mutate({ id: b.id, patch: { adminOnlyPost: !b.adminOnlyPost } })
+                }
+                disabled={updateBoard.isPending}
+                className="rounded border border-[var(--color-border)] px-2 py-1 font-mono text-xs hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] disabled:opacity-40"
+              >
+                {b.adminOnlyPost ? "open" : "lock post"}
+              </button>
+              <button
+                onClick={() => {
+                  const name = prompt("New name:", b.name);
+                  if (name && name.trim()) updateBoard.mutate({ id: b.id, patch: { name: name.trim() } });
+                }}
+                disabled={updateBoard.isPending}
+                className="rounded border border-[var(--color-border)] px-2 py-1 font-mono text-xs hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] disabled:opacity-40"
+              >
+                rename
+              </button>
+              <button
+                onClick={() => {
+                  if (!confirm(`Delete /${b.id}/? Only works if empty.`)) return;
+                  deleteBoard.mutate(b.id);
+                }}
+                disabled={deleteBoard.isPending}
+                className="rounded border border-[var(--color-danger)]/50 px-2 py-1 font-mono text-xs text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 disabled:opacity-40"
+              >
+                delete
+              </button>
+            </div>
+          </div>
+          {b.description && (
+            <p className="font-mono text-xs text-[var(--color-muted)]">{b.description}</p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Maintenance tab ───────────────────────────────────────────────────────────
+
+function MaintenanceTab() {
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  async function runPurge() {
+    setBusy(true);
+    setResult(null);
+    try {
+      const res = await apiFetch<{ purged: number }>("/api/admin/purge-orphans", {
+        method: "POST",
+      });
+      setResult(`Purged image files for ${res.purged} deleted posts.`);
+      toast.success(`Purged ${res.purged} orphan image sets.`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Purge failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-[var(--radius)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
+        <p className="mb-1 font-mono text-xs text-[var(--color-text)]">purge orphan images</p>
+        <p className="mb-3 font-mono text-xs text-[var(--color-muted)]">
+          Deletes image files for posts soft-deleted more than 30 days ago. Irreversible.
+        </p>
+        <button
+          onClick={runPurge}
+          disabled={busy}
+          className="rounded border border-[var(--color-danger)]/50 px-3 py-1.5 font-mono text-xs text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 disabled:opacity-40"
+        >
+          {busy ? "running…" : "run purge"}
+        </button>
+        {result && (
+          <p className="mt-2 font-mono text-xs text-[var(--color-muted)]">{result}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Dashboard shell ───────────────────────────────────────────────────────────
+
+type Tab = "reports" | "bans" | "threads" | "boards" | "maintenance";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "reports", label: "reports" },
+  { id: "bans", label: "bans" },
+  { id: "threads", label: "threads" },
+  { id: "boards", label: "boards" },
+  { id: "maintenance", label: "maintenance" },
+];
 
 export function AdminDashboard({ handle }: { handle: string }) {
   const [tab, setTab] = useState<Tab>("reports");
-
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "reports", label: "reports" },
-    { id: "bans", label: "bans" },
-  ];
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -272,13 +483,13 @@ export function AdminDashboard({ handle }: { handle: string }) {
       </div>
 
       {/* Tab nav */}
-      <div className="mb-5 flex gap-1 border-b border-[var(--color-border)] pb-0">
-        {tabs.map((t) => (
+      <div className="mb-5 flex gap-1 overflow-x-auto border-b border-[var(--color-border)] pb-0">
+        {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "rounded-t px-3 py-1.5 font-mono text-xs transition-colors",
+              "shrink-0 rounded-t px-3 py-1.5 font-mono text-xs transition-colors",
               tab === t.id
                 ? "border-b-2 border-[var(--color-accent)] text-[var(--color-accent)]"
                 : "text-[var(--color-muted)] hover:text-[var(--color-text)]",
@@ -287,22 +498,13 @@ export function AdminDashboard({ handle }: { handle: string }) {
             {t.label}
           </button>
         ))}
-        <button
-          onClick={() => setTab("threads" as Tab)}
-          className={cn(
-            "rounded-t px-3 py-1.5 font-mono text-xs transition-colors",
-            (tab as string) === "threads"
-              ? "border-b-2 border-[var(--color-accent)] text-[var(--color-accent)]"
-              : "text-[var(--color-muted)] hover:text-[var(--color-text)]",
-          )}
-        >
-          threads
-        </button>
       </div>
 
       {tab === "reports" && <ReportsTab />}
       {tab === "bans" && <BansTab />}
-      {(tab as string) === "threads" && <ThreadsTab />}
+      {tab === "threads" && <ThreadsTab />}
+      {tab === "boards" && <BoardsTab />}
+      {tab === "maintenance" && <MaintenanceTab />}
     </div>
   );
 }

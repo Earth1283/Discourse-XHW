@@ -39,5 +39,24 @@ export const HandleAuthSchema = z.object({
   password: z.string().min(8).max(200),
 });
 
+export const CreateBoardSchema = z.object({
+  id: z
+    .string()
+    .trim()
+    .min(1)
+    .max(10)
+    .regex(/^[a-z0-9]+$/, "Lowercase letters and numbers only."),
+  name: z.string().trim().min(1).max(50),
+  description: z.string().trim().max(200).optional().default(""),
+  sortOrder: z.coerce.number().int().optional(),
+});
+
+export const UpdateBoardSchema = z.object({
+  name: z.string().trim().min(1).max(50).optional(),
+  description: z.string().trim().max(200).optional(),
+  sortOrder: z.coerce.number().int().optional(),
+  adminOnlyPost: z.boolean().optional(),
+});
+
 export type CreateThreadInput = z.infer<typeof CreateThreadSchema>;
 export type CreateReplyInput = z.infer<typeof CreateReplySchema>;
