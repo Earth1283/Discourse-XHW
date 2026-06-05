@@ -38,7 +38,7 @@ export const LIABILITY_WAIVER =
 import { useEffect, useState } from "react";
 import { RULES, RULES_VERSION, LIABILITY_WAIVER } from "@/lib/rules";
 
-const COOKIE = "ssbs_rules_accepted";
+const COOKIE = "xhw_rules_accepted";
 
 export function RulesGate() {
   const [open, setOpen] = useState(false);

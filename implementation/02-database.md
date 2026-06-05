@@ -112,7 +112,7 @@ export default {
   schema: "./lib/db/schema.ts",
   out: "./lib/db/migrations",
   dialect: "sqlite",
-  dbCredentials: { url: process.env.DATABASE_URL ?? "./data/ssbs.db" },
+  dbCredentials: { url: process.env.DATABASE_URL ?? "./data/xhw.db" },
 } satisfies Config;
 ```
 
@@ -214,5 +214,5 @@ canSelfDelete(postId, token, now): boolean
 ```
 
 ## Exit criteria
-- Migrations + FTS apply cleanly to a fresh `data/ssbs.db`.
+- Migrations + FTS apply cleanly to a fresh `data/xhw.db`.
 - `npm run db:seed` creates 5 boards + the admin user, idempotently.

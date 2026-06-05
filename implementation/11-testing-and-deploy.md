@@ -77,7 +77,7 @@ npm run start          # serves on :3000
 SQLite + local image files means **the app needs a persistent disk and is effectively single-instance**. Don't deploy to ephemeral/serverless filesystems without external storage.
 
 ### Recommended: single VPS (or Fly.io / Railway with a volume)
-- Mount a persistent volume; put both `data/ssbs.db` and `uploads/` on it.
+- Mount a persistent volume; put both `data/xhw.db` and `uploads/` on it.
 - Run Node behind **nginx/Caddy** as a reverse proxy:
   - terminate TLS (Caddy auto-HTTPS)
   - serve `/uploads/**` directly from disk (skip Node for static images)
@@ -87,10 +87,10 @@ SQLite + local image files means **the app needs a persistent disk and is effect
 
 ### Caddyfile sketch
 ```
-ssbs.example.edu {
+xhw.example.edu {
   encode zstd gzip
   handle_path /uploads/* {
-    root * /srv/ssbs/uploads
+    root * /srv/xhw/uploads
     file_server
   }
   reverse_proxy 127.0.0.1:3000 {

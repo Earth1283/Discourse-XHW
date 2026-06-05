@@ -78,6 +78,10 @@ web_modules/
 .next
 out
 
+# SSBS runtime data (SQLite db + uploaded images)
+/data
+/uploads
+
 # Nuxt.js build / generate output
 .nuxt
 dist

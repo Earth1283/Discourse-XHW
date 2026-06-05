@@ -1,6 +1,6 @@
-# SSBS Implementation Guide — Overview
+# XHW Life Implementation Guide — Overview
 
-This folder is the **build manual** for SSBS. `plan.md` (repo root) is the *what & why*; these files are the *how*, in build order.
+This folder is the **build manual** for XHW Life. `plan.md` (repo root) is the *what & why*; these files are the *how*, in build order.
 
 ## Read order
 
@@ -33,7 +33,7 @@ This folder is the **build manual** for SSBS. `plan.md` (repo root) is the *what
 
 ```bash
 # Database
-DATABASE_URL=./data/ssbs.db
+DATABASE_URL=./data/xhw.db
 
 # Auth / crypto
 SESSION_SECRET=<32+ random bytes, base64>     # signs session JWTs

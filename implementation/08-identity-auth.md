@@ -5,13 +5,13 @@ Three identity layers, from weakest to strongest:
 | Layer | Mechanism | Persistence | Purpose |
 |-------|-----------|-------------|---------|
 | **Anonymous** (default) | nothing | — | Every post is `Anonymous` |
-| **Poster token** | `ssbs_pt` httpOnly cookie (nanoid) | per device | Enables 180-min self-delete; not shown to others |
+| **Poster token** | `xhw_pt` httpOnly cookie (nanoid) | per device | Enables 180-min self-delete; not shown to others |
 | **Tripcode** | `name#secret` → salted hash | none (stateless) | Prove "same anon" across posts, no account |
 | **Handle** (optional) | `users` row + JWT session | account | Persistent display name; can log in anywhere |
 | **Admin** (you) | `users` row, `role=admin` | account | Full moderation powers |
 
 ## 1. Anonymous + poster token
-Covered in `03`. Every first post mints `ssbs_pt`. The DB stores it on each post; `toPostDTO` compares it to the requester's cookie to set `ownPost`. **Never** sent to other clients.
+Covered in `03`. Every first post mints `xhw_pt`. The DB stores it on each post; `toPostDTO` compares it to the requester's cookie to set `ownPost`. **Never** sent to other clients.
 
 > Limitation to accept: poster token is per-device. Clearing cookies loses the ability to self-delete old posts. That's intended — it's a convenience, not an identity.
 
@@ -20,12 +20,12 @@ Covered in `03`. Every first post mints `ssbs_pt`. The DB stores it on each post
 
 ## 3. Optional handles
 - `POST /api/auth/handle` claims a free handle (creates `users` row, `role=user`) or logs into an existing one (bcrypt compare).
-- Session = signed JWT in `ssbs_session` (httpOnly, 30d).
+- Session = signed JWT in `xhw_session` (httpOnly, 30d).
 - When a logged-in user posts, the composer offers a toggle: **post as `@handle`** vs **post anonymously** (default stays anonymous — the anon culture is the point). If posting as handle, `authorHandle` is set; otherwise null.
 - Handle uniqueness enforced by `users_handle_unique` index. Reserve `admin`, `mod`, `anonymous`, etc. in a denylist.
 
 ```ts
-const RESERVED = new Set(["admin", "mod", "moderator", "anonymous", "system", "ssbs"]);
+const RESERVED = new Set(["admin", "mod", "moderator", "anonymous", "system", "xhw"]);
 if (RESERVED.has(handle.toLowerCase())) throw new HttpError(400, "RESERVED", "Handle not allowed.");
 ```
 

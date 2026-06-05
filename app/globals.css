@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * XHW Life design tokens — dark-first, minimal, one accent.
+ * Change --color-accent (+ --color-accent-ink) to re-skin the whole app.
+ * ------------------------------------------------------------------ */
+@theme {
+  /* base surfaces (dark) */
+  --color-bg: oklch(0.16 0.01 260);
+  --color-surface: oklch(0.2 0.012 260);
+  --color-surface-2: oklch(0.24 0.014 260);
+  --color-border: oklch(0.3 0.012 260);
+  --color-text: oklch(0.93 0.01 260);
+  --color-muted: oklch(0.66 0.012 260);
+
+  /* accent — acid green (default). See implementation/05 for alternatives. */
+  --color-accent: oklch(0.83 0.19 135);
+  --color-accent-ink: oklch(0.2 0.05 135);
+
+  /* semantic */
+  --color-greentext: oklch(0.8 0.17 140);
+  --color-quote: oklch(0.75 0.14 250);
+  --color-danger: oklch(0.68 0.2 25);
+
+  --radius: 0.5rem;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+}
+
+/* light theme overrides */
+:root[data-theme="light"] {
+  --color-bg: oklch(0.99 0 0);
+  --color-surface: oklch(0.97 0.003 260);
+  --color-surface-2: oklch(0.94 0.004 260);
+  --color-border: oklch(0.88 0.004 260);
+  --color-text: oklch(0.2 0.01 260);
+  --color-muted: oklch(0.5 0.01 260);
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

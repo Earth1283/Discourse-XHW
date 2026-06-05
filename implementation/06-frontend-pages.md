@@ -15,7 +15,7 @@ export default async function Home() {
   const boards = listBoards();
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
-      <h1 className="font-mono text-lg lowercase text-[var(--color-muted)] mb-6">ssbs // boards</h1>
+      <h1 className="font-mono text-lg lowercase text-[var(--color-muted)] mb-6">xhw // boards</h1>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {boards.map((b) => <BoardCard key={b.id} board={b} />)}
       </div>

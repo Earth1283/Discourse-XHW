@@ -5,10 +5,10 @@ Goal: a running Next.js + TS + Tailwind app with the full folder layout, all dep
 ## 1. Create the app
 
 ```bash
-npx create-next-app@latest ssbs \
+npx create-next-app@latest xhw \
   --typescript --tailwind --eslint --app --src-dir=false \
   --import-alias "@/*" --no-turbopack
-cd ssbs
+cd xhw
 ```
 
 > If the repo already exists (it does — this is the Discourse-XHW workspace), scaffold into the current directory instead and merge generated files rather than overwriting `plan.md` / `implementation/`.
@@ -104,7 +104,7 @@ function num(name: string, fallback: number): number {
 }
 
 export const config = {
-  databaseUrl: process.env.DATABASE_URL ?? "./data/ssbs.db",
+  databaseUrl: process.env.DATABASE_URL ?? "./data/xhw.db",
   sessionSecret: req("SESSION_SECRET"),
   ipHashSalt: req("IP_HASH_SALT"),
   tripcodeSalt: req("TRIPCODE_SALT"),

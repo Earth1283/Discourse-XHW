@@ -1,6 +1,6 @@
-# SSBS — Project Plan
+# XHW Life — Project Plan
 
-> **SSBS** is an anonymous imageboard-style forum modeled on 4chan, built for a school community. The *content* is meant to feel raw and unhinged; the *interface* is the opposite — minimal, sleek, fast, and modern. Think "chaotic energy wrapped in a clean Scandinavian shell."
+> **XHW Life** is an anonymous imageboard-style forum modeled on 4chan, built for a school community. The *content* is meant to feel raw and unhinged; the *interface* is the opposite — minimal, sleek, fast, and modern. Think "chaotic energy wrapped in a clean Scandinavian shell."
 
 ---
 
@@ -63,7 +63,7 @@ These were confirmed up front and drive the architecture:
 ## 4. Information Architecture
 
 ```
-SSBS
+XHW Life
 ├── /                     Landing — board index ("the catalog of boards")
 ├── /b/[board]            Board view — thread catalog (cards / grid)
 ├── /b/[board]/[thread]   Thread view — OP + replies
@@ -171,7 +171,7 @@ reports                        -- minimal; just a flag queue for admin
 - Deletion is a soft delete (`deleted_by = "self"`), optimistic in the UI.
 
 ### 6.5 Rules gate + liability waiver
-- First visit (no `ssbs_rules_accepted` cookie, or an outdated version) → blocking modal showing the conduct RULES **and** a prominent **liability waiver**.
+- First visit (no `xhw_rules_accepted` cookie, or an outdated version) → blocking modal showing the conduct RULES **and** a prominent **liability waiver**.
 - The waiver makes clear: all content is user-created; the author(s)/operator(s) are **not responsible and not liable** for anything on the site; use is at your own risk; the user agrees to hold them harmless.
 - User must tick a checkbox (confirming age ≥ 13 + agreement to rules + acceptance of the waiver) before the "I understand and agree" button enables.
 - Acceptance sets a long-lived **versioned** cookie; bumping `RULES_VERSION` (e.g. after editing the waiver) re-prompts everyone. Optionally stamped server-side on first post for an audit trail.

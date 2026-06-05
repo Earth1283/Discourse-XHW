@@ -96,7 +96,7 @@ Other primitives to build: `Modal` (focus-trapped, used by rules gate + composer
 
 ## Layout shell — `components/layout/TopBar.tsx`
 - Sticky, `backdrop-blur`, hairline bottom border.
-- Left: `SSBS` wordmark (mono, lowercase). Middle/over: `BoardSwitcher` (compact dropdown of board codes). Right: theme toggle + "New thread" button + (if session) handle/admin link.
+- Left: `XHW Life` wordmark (mono, lowercase). Middle/over: `BoardSwitcher` (compact dropdown of board codes). Right: theme toggle + "New thread" button + (if session) handle/admin link.
 - Mobile: wordmark + hamburger → sheet with boards.
 
 ## Post metadata row style

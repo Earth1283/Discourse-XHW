@@ -54,8 +54,8 @@ import "server-only";
 import { cookies } from "next/headers";
 import { nanoid } from "nanoid";
 
-const POSTER_COOKIE = "ssbs_pt";
-const RULES_COOKIE = "ssbs_rules_accepted";
+const POSTER_COOKIE = "xhw_pt";
+const RULES_COOKIE = "xhw_rules_accepted";
 
 export async function getOrCreatePosterToken(): Promise<string> {
   const jar = await cookies();
@@ -132,7 +132,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { config } from "@/lib/config";
 
-const SESSION_COOKIE = "ssbs_session";
+const SESSION_COOKIE = "xhw_session";
 const secret = new TextEncoder().encode(config.sessionSecret);
 
 export type Session = { userId: string; handle: string; role: "user" | "admin" };
