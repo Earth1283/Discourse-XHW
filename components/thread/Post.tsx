@@ -20,9 +20,7 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
         </span>
         {post.tripcode && <span className="text-[var(--color-accent)]">{post.tripcode}</span>}
         <span className="text-[var(--color-border)]">·</span>
-        <span className="select-all">
-          {post.pending ? "…" : `#${post.id}`}
-        </span>
+        <span className="select-all">{post.pending ? "…" : `#${post.id}`}</span>
         <span className="text-[var(--color-border)]">·</span>
         <RelTime ts={post.createdAt} />
         {post.pending && (
@@ -38,7 +36,22 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
       {post.deleted ? (
         <p className="text-sm italic text-[var(--color-muted)]">[deleted]</p>
       ) : (
-        <PostBody body={post.body} />
+        <>
+          {post.imagePath && (
+            <div className="mb-2">
+              <a href={post.imagePath} target="_blank" rel="noopener noreferrer">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                  src={post.thumbPath ?? post.imagePath}
+                  alt=""
+                  className="max-h-64 max-w-full cursor-zoom-in rounded-[calc(var(--radius)-2px)] object-contain"
+                  loading="lazy"
+                />
+              </a>
+            </div>
+          )}
+          <PostBody body={post.body} />
+        </>
       )}
     </article>
   );

@@ -89,6 +89,8 @@ export type CreateThreadArgs = {
   tripcode: string | null;
   posterToken: string;
   ipHash: string;
+  imagePath?: string | null;
+  thumbPath?: string | null;
 };
 
 export function createThread(args: CreateThreadArgs): { thread: Thread; op: Post } {
@@ -120,6 +122,8 @@ export function createThread(args: CreateThreadArgs): { thread: Thread; op: Post
         authorHandle: args.name,
         tripcode: args.tripcode,
         body: args.body,
+        imagePath: args.imagePath ?? null,
+        thumbPath: args.thumbPath ?? null,
         posterToken: args.posterToken,
         ipHash: args.ipHash,
         createdAt: now,

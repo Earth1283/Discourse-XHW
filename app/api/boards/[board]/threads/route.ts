@@ -10,6 +10,8 @@ import { CreateThreadSchema } from "@/lib/validation/schemas";
 import { getBoard } from "@/lib/db/services/boards";
 import { createThread, listThreadCards } from "@/lib/db/services/threads";
 import { toPostDTO } from "@/lib/db/dto";
+import { parseMultipart } from "@/lib/upload/parse";
+import { processAndStore } from "@/lib/upload/process";
 
 export const runtime = "nodejs";
 
@@ -43,9 +45,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ board: 
       throw new HttpError(429, "RATE_LIMITED", "Slow down — too many new threads.");
     }
 
+    const { fields, image } = await parseMultipart(req);
+
+    if (image) {
+      if (!rateLimit(`${ipHash}:upload`, config.rl.uploadPerMin, 60_000)) {
+        throw new HttpError(429, "RATE_LIMITED", "Too many uploads — slow down.");
+      }
+    }
+
     const token = await getOrCreatePosterToken();
-    const input = CreateThreadSchema.parse(await req.json());
+    const input = CreateThreadSchema.parse(fields);
     const { name, tripcode } = parseName(input.name);
+
+    const imageResult = image ? await processAndStore(image) : null;
 
     const { thread, op } = createThread({
       boardId: board,
@@ -55,10 +67,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ board: 
       tripcode,
       posterToken: token,
       ipHash,
+      imagePath: imageResult?.imagePath,
+      thumbPath: imageResult?.thumbPath,
     });
 
     return Response.json(
-      { data: { thread, op: toPostDTO(op, token, Date.now()) } },
+      { data: { thread, op: toPostDTO(op, token) } },
       { status: 201 },
     );
   } catch (e) {

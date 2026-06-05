@@ -19,6 +19,8 @@ export type CreateReplyArgs = {
   posterToken: string;
   ipHash: string;
   sage: boolean;
+  imagePath?: string | null;
+  thumbPath?: string | null;
 };
 
 export function createReply(args: CreateReplyArgs): Post {
@@ -36,6 +38,8 @@ export function createReply(args: CreateReplyArgs): Post {
         authorHandle: args.name,
         tripcode: args.tripcode,
         body: args.body,
+        imagePath: args.imagePath ?? null,
+        thumbPath: args.thumbPath ?? null,
         posterToken: args.posterToken,
         ipHash: args.ipHash,
         createdAt: now,
