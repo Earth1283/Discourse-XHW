@@ -1,10 +1,21 @@
+"use client";
+
 import type { PostDTO } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { RelTime } from "@/components/RelTime";
 import { PostBody } from "./PostBody";
 import { DeleteButton } from "./DeleteButton";
+import { ReportButton } from "./ReportButton";
 
-export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
+export function Post({
+  post,
+  threadId,
+  isAdmin = false,
+}: {
+  post: PostDTO;
+  threadId: string;
+  isAdmin?: boolean;
+}) {
   return (
     <article
       id={`p-${post.id}`}
@@ -14,7 +25,7 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
         post.pending && "opacity-60",
       )}
     >
-      <div className="mb-1.5 flex items-center gap-2 font-mono text-xs text-[var(--color-muted)]">
+      <div className="mb-1.5 flex flex-wrap items-center gap-2 font-mono text-xs text-[var(--color-muted)]">
         <span className={post.name === "Anonymous" ? "" : "text-[var(--color-text)]"}>
           {post.name}
         </span>
@@ -26,9 +37,26 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
         {post.pending && (
           <span className="font-mono text-xs text-[var(--color-muted)]">posting…</span>
         )}
-        {post.canDeleteUntil != null && !post.pending && (
-          <span className="ml-auto">
-            <DeleteButton postId={post.id} threadId={threadId} />
+
+        {!post.pending && (
+          <span className="ml-auto flex items-center gap-2">
+            {/* Self-delete: own post within window */}
+            {post.canDeleteUntil != null && (
+              <DeleteButton postId={post.id} threadId={threadId} />
+            )}
+            {/* Admin controls: delete any post + ban poster */}
+            {isAdmin && !post.deleted && (
+              <>
+                {post.canDeleteUntil == null && (
+                  <DeleteButton postId={post.id} threadId={threadId} />
+                )}
+                <AdminBanButton postId={post.id} />
+              </>
+            )}
+            {/* Report: non-own, non-deleted, non-pending */}
+            {!post.ownPost && !post.deleted && !isAdmin && (
+              <ReportButton postId={post.id} />
+            )}
           </span>
         )}
       </div>
@@ -41,7 +69,7 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
             <div className="mb-2">
               <a href={post.imagePath} target="_blank" rel="noopener noreferrer">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+                <img
                   src={post.thumbPath ?? post.imagePath}
                   alt=""
                   className="max-h-64 max-w-full cursor-zoom-in rounded-[calc(var(--radius)-2px)] object-contain"
@@ -54,5 +82,37 @@ export function Post({ post, threadId }: { post: PostDTO; threadId: string }) {
         </>
       )}
     </article>
+  );
+}
+
+function AdminBanButton({ postId }: { postId: string }) {
+  async function ban() {
+    if (!confirm("Ban this poster? This is permanent unless lifted.")) return;
+    const reason = prompt("Ban reason (optional):") ?? undefined;
+    try {
+      const res = await fetch(`/api/admin/posts/${postId}/ban`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert(j?.error?.message ?? "Ban failed.");
+      } else {
+        alert("Poster banned.");
+      }
+    } catch {
+      alert("Ban failed.");
+    }
+  }
+
+  return (
+    <button
+      onClick={ban}
+      title="Ban poster"
+      className="font-mono text-[10px] text-[var(--color-muted)] hover:text-[var(--color-danger)]"
+    >
+      ban
+    </button>
   );
 }

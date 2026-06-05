@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { qk } from "@/lib/query/keys";
 import { apiFetch } from "@/lib/api";
+import { useSession } from "@/lib/hooks/useSession";
 import { Post } from "./Post";
 import { ReplyComposer } from "./ReplyComposer";
 import type { ThreadData } from "@/lib/types";
@@ -13,6 +14,8 @@ export function ThreadView({ board, threadId }: { board: string; threadId: strin
     queryKey: qk.thread(threadId),
     queryFn: () => apiFetch<ThreadData>(`/api/threads/${threadId}`),
   });
+  const session = useSession();
+  const isAdmin = session?.role === "admin";
 
   // data is always present on first render due to SSR hydration
   if (!data) return null;
@@ -38,7 +41,7 @@ export function ThreadView({ board, threadId }: { board: string; threadId: strin
 
       <div className="space-y-2">
         {posts.map((p) => (
-          <Post key={p.id} post={p} threadId={threadId} />
+          <Post key={p.id} post={p} threadId={threadId} isAdmin={isAdmin} />
         ))}
       </div>
 

@@ -150,3 +150,13 @@ export function createThread(args: CreateThreadArgs): { thread: Thread; op: Post
 
   return result;
 }
+
+export type ThreadPatch = {
+  isLocked?: boolean;
+  isPinned?: boolean;
+  isArchived?: boolean;
+};
+
+export function setThreadMeta(threadId: string, patch: ThreadPatch): void {
+  db.update(threads).set(patch).where(eq(threads.id, threadId)).run();
+}
