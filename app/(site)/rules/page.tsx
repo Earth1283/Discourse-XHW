@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RULES_en, RULES_zh, RULES_lzh, LIABILITY_WAIVER_en, LIABILITY_WAIVER_zh, LIABILITY_WAIVER_lzh } from "@/lib/rules";
 import { getServerTranslations } from "@/lib/i18n/server";
+import { RulesResetButton } from "@/components/rules/RulesResetButton";
 
 export default async function RulesPage() {
   const { locale, t } = await getServerTranslations();
@@ -28,6 +29,8 @@ export default async function RulesPage() {
           <li key={i}>{r}</li>
         ))}
       </ol>
+
+      <RulesResetButton />
     </main>
   );
 }

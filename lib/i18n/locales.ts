@@ -4,6 +4,7 @@ export const locales = {
     "logo.life": "life",
     "nav.boards": "← boards",
     "nav.home": "← home",
+    "nav.rules": "rules",
     "home.boards": "// boards",
     "theme.toggle": "Toggle theme",
     "search.placeholder": "search posts…",
@@ -30,7 +31,9 @@ export const locales = {
     "rules.agreement": "I am at least 13, I agree to the rules, and I accept the liability waiver above — I will not hold the author(s) or operator(s) liable for anything on this site.",
     "rules.understand_agree": "I understand and agree",
     "rules.read_full": "read full rules",
-    
+    "rules.re_accept": "Re-read & re-accept",
+    "rules.re_accept_tip": "Clears your acceptance and shows the agreement dialog again.",
+
     // Boards & Threads Listing
     "board.threads_count": "{count} {count, plural, =1 {thread} other {threads}}",
     "board.replies_count": "{count} {count, plural, =1 {reply} other {replies}}",
@@ -102,6 +105,7 @@ export const locales = {
     "logo.life": "生活",
     "nav.boards": "← 版块列表",
     "nav.home": "← 首页",
+    "nav.rules": "规则",
     "home.boards": "// 版块",
     "theme.toggle": "切换主题",
     "search.placeholder": "搜索帖子…",
@@ -128,7 +132,9 @@ export const locales = {
     "rules.agreement": "我已满13岁，同意上述规则，并接受上述免责声明——我不会因本网站的任何内容追究作者或运营者的责任。",
     "rules.understand_agree": "我理解并同意",
     "rules.read_full": "阅读完整规则",
-    
+    "rules.re_accept": "重新阅读并确认",
+    "rules.re_accept_tip": "清除您的接受记录，并重新显示协议弹窗。",
+
     // Boards & Threads Listing
     "board.threads_count": "{count} 个帖子",
     "board.replies_count": "{count} 条回复",
@@ -200,6 +206,7 @@ export const locales = {
     "logo.life": "生息",
     "nav.boards": "← 诸版",
     "nav.home": "← 归闾",
+    "nav.rules": "约法",
     "home.boards": "// 诸版",
     "theme.toggle": "易调阴阳",
     "search.placeholder": "寻觅文墨…",
@@ -226,7 +233,9 @@ export const locales = {
     "rules.agreement": "吾已及舞勺之年（十三岁以上），谨遵约法，并纳免责之契——不以本站之文罪及作者与有司。",
     "rules.understand_agree": "吾知晓并允之",
     "rules.read_full": "尽览约法",
-    
+    "rules.re_accept": "重阅并允之",
+    "rules.re_accept_tip": "清除允约记录，重现协议弹窗。",
+
     // Boards & Threads Listing
     "board.threads_count": "{count} 议",
     "board.replies_count": "{count} 答",

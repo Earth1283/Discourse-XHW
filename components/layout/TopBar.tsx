@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { SunMoon, Languages } from "lucide-react";
+import { SunMoon, Languages, ScrollText } from "lucide-react";
 import type { BoardDTO } from "@/lib/types";
 import { cn } from "@/lib/cn";
 import { AuthMenu } from "./AuthMenu";
@@ -60,6 +60,15 @@ export function TopBar({ boards }: { boards: BoardDTO[] }) {
         </nav>
 
         <SearchBar />
+
+        <Link
+          href="/rules"
+          title={t("nav.rules")}
+          aria-label={t("nav.rules")}
+          className="rounded p-1.5 text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]"
+        >
+          <ScrollText size={16} />
+        </Link>
 
         <AuthMenu />
 
