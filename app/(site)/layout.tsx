@@ -1,5 +1,7 @@
 import { Providers } from "@/app/providers";
 import { TopBar } from "@/components/layout/TopBar";
+import { RulesGate } from "@/components/RulesGate";
+import { Toaster } from "@/components/ui/Toaster";
 import { listBoards } from "@/lib/db/services/boards";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
@@ -10,6 +12,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <TopBar boards={boards} />
         {children}
       </div>
+      <RulesGate />
+      <Toaster />
     </Providers>
   );
 }

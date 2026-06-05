@@ -1,31 +1,49 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
+import { qk } from "@/lib/query/keys";
 import { apiFetch } from "@/lib/api";
+import { toast } from "@/lib/toast";
+import type { ThreadData } from "@/lib/types";
 
-export function DeleteButton({ postId }: { postId: string }) {
-  const router = useRouter();
-  const [busy, setBusy] = useState(false);
+export function DeleteButton({ postId, threadId }: { postId: string; threadId: string }) {
+  const qc = useQueryClient();
 
-  async function onDelete() {
-    if (busy) return;
-    if (!confirm("Delete this post? This can't be undone.")) return;
-    setBusy(true);
-    try {
-      await apiFetch(`/api/posts/${postId}`, { method: "DELETE" });
-      router.refresh();
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Delete failed.");
-      setBusy(false);
-    }
-  }
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => apiFetch(`/api/posts/${postId}`, { method: "DELETE" }),
+
+    onMutate: async () => {
+      await qc.cancelQueries({ queryKey: qk.thread(threadId) });
+      const prev = qc.getQueryData<ThreadData>(qk.thread(threadId));
+      qc.setQueryData<ThreadData>(qk.thread(threadId), (d) =>
+        d
+          ? {
+              ...d,
+              posts: d.posts.map((p) =>
+                p.id === postId ? { ...p, deleted: true, canDeleteUntil: null } : p,
+              ),
+            }
+          : d,
+      );
+      return { prev };
+    },
+
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(qk.thread(threadId), ctx.prev);
+      toast.error("Couldn't delete the post.");
+    },
+
+    onSettled: () => qc.invalidateQueries({ queryKey: qk.thread(threadId) }),
+  });
 
   return (
     <button
-      onClick={onDelete}
-      disabled={busy}
+      onClick={() => {
+        if (!confirm("Delete this post?")) return;
+        mutate();
+      }}
+      disabled={isPending}
       title="Delete (within 180 min of posting)"
       className="text-[var(--color-muted)] hover:text-[var(--color-danger)] disabled:opacity-40"
     >

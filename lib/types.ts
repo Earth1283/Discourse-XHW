@@ -48,4 +48,10 @@ export type PostDTO = {
   deleted: boolean;
   ownPost: boolean;
   canDeleteUntil: number | null;
+  pending?: boolean; // optimistic-only: true while mutation is in-flight
+};
+
+export type ThreadData = {
+  thread: ThreadMeta;
+  posts: PostDTO[];
 };
